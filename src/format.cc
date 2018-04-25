@@ -173,6 +173,10 @@ NAN_METHOD(NODE_FLAC__format_picture_is_legal) {
 }
 
 template<>
+Local<Object> StructToJs(const FLAC__Metadata_SimpleIterator* i) {
+  return WrapPtr(i).ToLocalChecked();
+}
+template<>
 void StructToJs(const FLAC__StreamMetadata* i, Local<Object> &obj) {
   if (i->type == FLAC__METADATA_TYPE_PICTURE) {
     obj = StructToJs(&i->data.picture);

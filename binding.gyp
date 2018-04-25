@@ -5,7 +5,8 @@
       "sources": [
         "src/binding.cc",
         "src/format.cc",
-        "src/metadata.cc"
+        "src/metadata.cc",
+        "src/metadata_object.cc"
       ],
       "include_dirs": [
         "<!(node -e \"require('nan')\")",

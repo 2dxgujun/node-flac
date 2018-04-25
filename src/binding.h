@@ -2,6 +2,7 @@
 #define FLAC_BINDINGS__BINDING_H_
 
 #include <nan.h>
+#include <FLAC/metadata.h>
 
 using namespace v8;
 using namespace node;
@@ -53,6 +54,7 @@ Local<Object> StructToJs(const T* i) {
   return scope.Escape(obj);
 }
 
+
 template<typename T>
 T* fromjs(const Local<Value> &m) {
   Nan::HandleScope scope;
@@ -78,5 +80,33 @@ T* fromjs(const Local<Value> &m) {
   }
   return UnwrapPtr<T>(ptr2);
 }
+
+template <typename Ret, typename... Args>
+class BindingWorker : public Nan::AsyncWorker {
+  public:
+    BindingWorker(Nan::Callback* callback,
+        Ret(*func)(BindingWorker<Ret, Args...>* worker, Args...),
+        Args... args)
+      : Nan::AsyncWorker(callback), func([=]() { return func(this, args...); }) {}
+    ~BindingWorker() {}
+
+    void Execute() {
+      ret = func();
+    }
+
+    void HandleOKCallback() {
+      Nan::HandleScope scope;
+      Local<Value> argv[] = {
+        Nan::Null(),
+        StructToJs(ret)
+      };
+
+      callback->Call(2, argv, async_resource);
+    }
+
+  private:
+    Ret ret;
+    std::function<Ret()> func;
+};
 
 #endif

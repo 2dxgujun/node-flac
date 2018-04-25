@@ -32,7 +32,7 @@ NAN_METHOD(NODE_FLAC__metadata_object_picture_set_description) {
   FLAC__StreamMetadata* m = fromjs<FLAC__StreamMetadata>(info[0]);
   if (m == nullptr) return;
   Nan::Utf8String description(info[1]);
-  FLAC__bool ret = FLAC__metadata_object_picture_set_description(m, (FLAC__byte*) *description, true);
+  FLAC__bool r = FLAC__metadata_object_picture_set_description(m, (FLAC__byte*) *description, true);
   info.GetReturnValue().Set(Nan::New<Boolean>(r));
 }
 
