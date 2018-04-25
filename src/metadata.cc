@@ -127,21 +127,20 @@ NAN_METHOD(NODE_FLAC__metadata_simple_iterator_delete_block) {
 NAN_PROPERTY_GETTER(SimpleIteratorStatus) {
   Nan::Utf8String p(property);
   std::string PropertyName(*p);
+  for (int i = 0; i < 13; i++) {
+    if (PropertyName == FLAC__Metadata_SimpleIteratorStatusString[i]) {
+      info.GetReturnValue().Set(Nan::New(i));
+      return;
+    }
+  }
+  info.GetReturnValue().SetUndefined();
+}
 
-  if(PropertyName == "OK") info.GetReturnValue().Set(0);
-  else if(PropertyName == "ILLEGAL_INPUT") info.GetReturnValue().Set(1);
-  else if(PropertyName == "ERROR_OPENING_FILE") info.GetReturnValue().Set(2);
-  else if(PropertyName == "NOT_A_FLAC_FILE") info.GetReturnValue().Set(3);
-  else if(PropertyName == "NOT_WRITABLE") info.GetReturnValue().Set(4);
-  else if(PropertyName == "BAD_METADATA") info.GetReturnValue().Set(5);
-  else if(PropertyName == "READ_ERROR") info.GetReturnValue().Set(6);
-  else if(PropertyName == "SEEK_ERROR") info.GetReturnValue().Set(7);
-  else if(PropertyName == "WRITE_ERROR") info.GetReturnValue().Set(8);
-  else if(PropertyName == "RENAME_ERROR") info.GetReturnValue().Set(9);
-  else if(PropertyName == "UNLINK_ERROR") info.GetReturnValue().Set(10);
-  else if(PropertyName == "MEMORY_ALLOCATION_ERROR") info.GetReturnValue().Set(11);
-  else if(PropertyName == "INTERNAL_ERROR") info.GetReturnValue().Set(12);
-  else info.GetReturnValue().SetUndefined();
+NAN_PROPERTY_ENUMERATOR(SimpleIteratorStatus) {
+  Local<Array> arr = Nan::New<Array>();
+  // for(int i = 0; i < 13; i++) Nan::Set(arr, i, Nan::New("FLAC__METADATA_SIMPLE_ITERATOR_STATUS_BAD_METADATA").ToLocalChecked());
+  Nan::Set(arr, 0, Nan::New("FLAC__METADATA_SIMPLE_ITERATOR_STATUS_BAD_METADATA").ToLocalChecked());
+  info.GetReturnValue().Set(arr);
 }
 
 NAN_INDEX_GETTER(SimpleIteratorStatusString) {
@@ -153,9 +152,9 @@ NAN_INDEX_GETTER(SimpleIteratorStatusString) {
 }
 
 NAN_INDEX_ENUMERATOR(SimpleIteratorStatusString) {
-  Local<Array> array = Nan::New<Array>();
-  for(int i = 0; i < 13; i++) Nan::Set(array, i, Nan::New(i));
-  info.GetReturnValue().Set(array);
+  Local<Array> arr = Nan::New<Array>();
+  for(int i = 0; i < 13; i++) Nan::Set(arr, i, Nan::New(i));
+  info.GetReturnValue().Set(arr);
 }
 
 NAN_MODULE_INIT(init_metadata) {
@@ -179,7 +178,7 @@ NAN_MODULE_INIT(init_metadata) {
   Nan::SetMethod(obj, "delete_block", NODE_FLAC__metadata_simple_iterator_delete_block);
 
   Local<ObjectTemplate> SimpleIteratorStatusTemplate = Nan::New<ObjectTemplate>();
-  Nan::SetNamedPropertyHandler(SimpleIteratorStatusTemplate, SimpleIteratorStatus);
+  Nan::SetNamedPropertyHandler(SimpleIteratorStatusTemplate, SimpleIteratorStatus, nullptr, nullptr, nullptr, SimpleIteratorStatus);
   Nan::Set(obj, Nan::New("SimpleIteratorStatus").ToLocalChecked(), Nan::NewInstance(SimpleIteratorStatusTemplate).ToLocalChecked());
 
   Local<ObjectTemplate> SimpleIteratorStatusStringTemplate = Nan::New<ObjectTemplate>();

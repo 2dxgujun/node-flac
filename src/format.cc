@@ -126,11 +126,11 @@ NAN_INDEX_GETTER(MetadataTypeString) {
 }
 
 NAN_INDEX_ENUMERATOR(MetadataTypeString) {
-  Local<Array> array = Nan::New<Array>();
+  Local<Array> arr = Nan::New<Array>();
   for (int i = 0; i < 7; i++) {
-    Nan::Set(array, i, Nan::New(i));
+    Nan::Set(arr, i, Nan::New(i));
   }
-  info.GetReturnValue().Set(array);
+  info.GetReturnValue().Set(arr);
 }
 
 NAN_PROPERTY_GETTER(StreamMetadata_Picture_Type) {
@@ -154,11 +154,11 @@ NAN_INDEX_GETTER(StreamMetadata_Picture_TypeString) {
 }
 
 NAN_INDEX_ENUMERATOR(StreamMetadata_Picture_TypeString) {
-  Local<Array> array = Nan::New<Array>();
+  Local<Array> arr = Nan::New<Array>();
   for (int i = 0; i < 21; i++) {
-    Nan::Set(array, i, Nan::New(i));
+    Nan::Set(arr, i, Nan::New(i));
   }
-  info.GetReturnValue().Set(array);
+  info.GetReturnValue().Set(arr);
 }
 
 NAN_METHOD(NODE_FLAC__format_picture_is_legal) {
