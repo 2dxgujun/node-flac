@@ -1,5 +1,5 @@
-#include <nan.h>
 #include "binding.h"
+#include <nan.h>
 
 using namespace v8;
 using namespace node;
