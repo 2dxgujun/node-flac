@@ -14,7 +14,7 @@ using namespace v8;
 using namespace node;
 
 template <>
-Local<Object> StructToJs(const FLAC__Metadata_SimpleIterator* i) {
+Local<Object> StructToJs(FLAC__Metadata_SimpleIterator* i) {
   return WrapPtr(i).ToLocalChecked();
 }
 

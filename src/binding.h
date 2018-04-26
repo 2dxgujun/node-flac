@@ -49,26 +49,26 @@ T* getPointer(const Local<Object>& thiz) {
 }
 
 template <typename T>
-void StructToJs(const T* i, Local<Object>& obj);
+void StructToJs(T* i, Local<Object>& obj);
 
 template <typename T>
-Local<Value> StructToJs(const T i) {
+Local<Object> StructToJs(T* i) {
+  Nan::EscapableHandleScope scope;
+  Local<Object> obj = Nan::New<Object>();
+  StructToJs(i, obj);
+  return scope.Escape(obj);
+}
+
+template <typename T>
+Local<Value> StructToJs(T i) {
   Nan::EscapableHandleScope scope;
   return scope.Escape(Nan::New(i));
 }
 
 template <>
-inline Local<Value> StructToJs(const off_t i) {
+inline Local<Value> StructToJs(off_t i) {
   Nan::EscapableHandleScope scope;
   return scope.Escape(Nan::New<Number>(i));
-}
-
-template <typename T>
-Local<Object> StructToJs(const T* i) {
-  Nan::EscapableHandleScope scope;
-  Local<Object> obj = Nan::New<Object>();
-  StructToJs(i, obj);
-  return scope.Escape(obj);
 }
 
 template <typename T>
