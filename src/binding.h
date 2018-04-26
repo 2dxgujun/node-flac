@@ -113,7 +113,7 @@ class BindingWorker : public Nan::AsyncWorker {
   void HandleOKCallback() {
     Nan::HandleScope scope;
 
-    Local<Value> argv[] = {Nan::Undefined(), StructToJs(ret)};
+    Local<Value> argv[] = {Nan::Null(), StructToJs(ret)};
     callback->Call(2, argv, async_resource);
   }
 
