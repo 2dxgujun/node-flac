@@ -57,6 +57,12 @@ Local<Value> StructToJs(const T i) {
   return scope.Escape(Nan::New(i));
 }
 
+template <>
+inline Local<Value> StructToJs(const off_t i) {
+  Nan::EscapableHandleScope scope;
+  return scope.Escape(Nan::New<Number>(i));
+}
+
 template <typename T>
 Local<Object> StructToJs(const T* i) {
   Nan::EscapableHandleScope scope;
@@ -97,17 +103,22 @@ template <typename Ret, typename... Args>
 class BindingWorker : public Nan::AsyncWorker {
   public:
   BindingWorker(Nan::Callback* callback,
-                Ret (*func)(Nan::AsyncWorker* worker, Args...), Args... args)
+                Ret (*func)(BindingWorker<Ret, Args...>* worker, Args...),
+                Args... args)
       : Nan::AsyncWorker(callback),
         func([=]() { return func(this, args...); }) {}
-  ~BindingWorker() {}
 
   void Execute() { ret = func(); }
 
   void HandleOKCallback() {
     Nan::HandleScope scope;
+
     Local<Value> argv[] = {Nan::Undefined(), StructToJs(ret)};
     callback->Call(2, argv, async_resource);
+  }
+
+  void SetErrorMessage(const char* msg) {
+    Nan::AsyncWorker::SetErrorMessage(msg);
   }
 
   private:
@@ -119,11 +130,15 @@ template <typename... Args>
 class BindingWorker<void, Args...> : public Nan::AsyncWorker {
   public:
   BindingWorker(Nan::Callback* callback,
-                void (*func)(Nan::AsyncWorker* worker, Args...), Args... args)
+                void (*func)(BindingWorker<void, Args...>* worker, Args...),
+                Args... args)
       : Nan::AsyncWorker(callback), func([=]() { func(this, args...); }) {}
-  ~BindingWorker() {}
 
   void Execute() { func(); }
+
+  void SetErrorMessage(const char* msg) {
+    Nan::AsyncWorker::SetErrorMessage(msg);
+  }
 
   private:
   std::function<void()> func;
