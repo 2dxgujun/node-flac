@@ -110,4 +110,77 @@ class BindingWorker : public Nan::AsyncWorker {
     std::function<Ret()> func;
 };
 
+// modified version of Nan::SetNamedPropertyHandler
+// see https://github.com/nodejs/nan/issues/762
+inline void SetNamedPropertyHandlerFix(
+    Local<ObjectTemplate> tpl
+  , Nan::PropertyGetterCallback getter
+  , Nan::PropertySetterCallback setter = 0
+  , Nan::PropertyQueryCallback query = 0
+  , Nan::PropertyDeleterCallback deleter = 0
+  , Nan::PropertyEnumeratorCallback enumerator = 0
+  , Local<Value> data = Local<Value>()) {
+  Nan::HandleScope scope;
+
+  Nan::imp::NativePropertyGetter getter_ =
+      Nan::imp::PropertyGetterCallbackWrapper;
+  Nan::imp::NativePropertySetter setter_ =
+      setter ? Nan::imp::PropertySetterCallbackWrapper : 0;
+  Nan::imp::NativePropertyQuery query_ =
+      query ? Nan::imp::PropertyQueryCallbackWrapper : 0;
+  Nan::imp::NativePropertyDeleter *deleter_ =
+      deleter ? Nan::imp::PropertyDeleterCallbackWrapper : 0;
+  Nan::imp::NativePropertyEnumerator enumerator_ =
+      enumerator ? Nan::imp::PropertyEnumeratorCallbackWrapper : 0;
+
+  Local<ObjectTemplate> otpl = Nan::New<ObjectTemplate>();
+  otpl->SetInternalFieldCount(Nan::imp::kPropertyFieldCount);
+  Local<Object> obj = Nan::NewInstance(otpl).ToLocalChecked();
+  obj->SetInternalField(
+      Nan::imp::kPropertyGetterIndex
+    , Nan::New<External>(reinterpret_cast<void *>(getter)));
+
+  if (setter) {
+    obj->SetInternalField(
+        Nan::imp::kPropertySetterIndex
+      , Nan::New<External>(reinterpret_cast<void *>(setter)));
+  }
+
+  if (query) {
+    obj->SetInternalField(
+        Nan::imp::kPropertyQueryIndex
+      , Nan::New<External>(reinterpret_cast<void *>(query)));
+  }
+
+  if (deleter) {
+    obj->SetInternalField(
+        Nan::imp::kPropertyDeleterIndex
+      , Nan::New<External>(reinterpret_cast<void *>(deleter)));
+  }
+
+  if (enumerator) {
+    obj->SetInternalField(
+        Nan::imp::kPropertyEnumeratorIndex
+      , Nan::New<External>(reinterpret_cast<void *>(enumerator)));
+  }
+
+  if (!data.IsEmpty()) {
+    obj->SetInternalField(Nan::imp::kDataIndex, data);
+  }
+
+#if NODE_MODULE_VERSION > NODE_0_12_MODULE_VERSION
+  tpl->SetHandler(v8::NamedPropertyHandlerConfiguration(
+      getter_, setter_, query_, deleter_, enumerator_, obj,
+      PropertyHandlerFlags::kOnlyInterceptStrings));
+#else
+  tpl->SetNamedPropertyHandler(
+      getter_
+    , setter_
+    , query_
+    , deleter_
+    , enumerator_
+    , obj);
+#endif
+}
+
 #endif

@@ -156,8 +156,9 @@ NAN_PROPERTY_GETTER(SimpleIteratorStatus) {
 
 NAN_PROPERTY_ENUMERATOR(SimpleIteratorStatus) {
   Local<Array> arr = Nan::New<Array>();
-  // for(int i = 0; i < 13; i++) Nan::Set(arr, i, Nan::New("FLAC__METADATA_SIMPLE_ITERATOR_STATUS_BAD_METADATA").ToLocalChecked());
-  Nan::Set(arr, 0, Nan::New("FLAC__METADATA_SIMPLE_ITERATOR_STATUS_BAD_METADATA").ToLocalChecked());
+  for(int i = 0; i < 13; i++) {
+    Nan::Set(arr, i, Nan::New(FLAC__Metadata_SimpleIteratorStatusString[i]).ToLocalChecked());
+  }
   info.GetReturnValue().Set(arr);
 }
 
@@ -197,7 +198,7 @@ NAN_MODULE_INIT(init_metadata) {
   Nan::SetMethod(obj, "delete_block", NODE_FLAC__metadata_simple_iterator_delete_block);
 
   Local<ObjectTemplate> SimpleIteratorStatusTemplate = Nan::New<ObjectTemplate>();
-  Nan::SetNamedPropertyHandler(SimpleIteratorStatusTemplate, SimpleIteratorStatus, nullptr, nullptr, nullptr, SimpleIteratorStatus);
+  SetNamedPropertyHandlerFix(SimpleIteratorStatusTemplate, SimpleIteratorStatus, nullptr, nullptr, nullptr, SimpleIteratorStatus);
   Nan::Set(obj, Nan::New("SimpleIteratorStatus").ToLocalChecked(), Nan::NewInstance(SimpleIteratorStatusTemplate).ToLocalChecked());
 
   Local<ObjectTemplate> SimpleIteratorStatusStringTemplate = Nan::New<ObjectTemplate>();
