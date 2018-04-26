@@ -3,6 +3,7 @@
 
 #include <nan.h>
 #include <FLAC/metadata.h>
+#include <functional>
 
 using namespace v8;
 using namespace node;

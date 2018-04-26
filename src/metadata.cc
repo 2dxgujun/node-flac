@@ -22,18 +22,20 @@ NAN_METHOD(__FLAC__metadata_simple_iterator_new_sync) {
   }
 }
 
+FLAC__Metadata_SimpleIterator* __FLAC__metadata_simple_iterator_new_async(BindingWorker<FLAC__Metadata_SimpleIterator*>* worker) {
+  return FLAC__metadata_simple_iterator_new();
+}
+
 NAN_METHOD(__FLAC__metadata_simple_iterator_new) {
   Nan::Callback* cb = new Nan::Callback(Nan::To<Function>(info[info.Length() - 1]).ToLocalChecked());
-  AsyncQueueWorker(new BindingWorker<FLAC__MetadataType_SimpleIterator*>(cb,
+  Nan::AsyncQueueWorker(new BindingWorker<FLAC__Metadata_SimpleIterator*>(cb,
         __FLAC__metadata_simple_iterator_new_async));
 }
 
-NAN_METHOD(__FLAC__metadata_simple_iterator_delete_sync) {
+NAN_METHOD(NODE_FLAC__metadata_simple_iterator_delete) {
   FLAC__Metadata_SimpleIterator* it = UnwrapPtr<FLAC__Metadata_SimpleIterator>(info[0]);
   FLAC__metadata_simple_iterator_delete(it);
 }
-
-NAN_ASYNC_METHOD(__FLAC__metadata_simple_iterator_delete, void, )
 
 NAN_METHOD(NODE_FLAC__metadata_simple_iterator_status) {
   FLAC__Metadata_SimpleIterator* it = UnwrapPtr<FLAC__Metadata_SimpleIterator>(info[0]);
@@ -178,7 +180,6 @@ NAN_MODULE_INIT(init_metadata) {
 
   Nan::SetMethod(obj, "newSync", __FLAC__metadata_simple_iterator_new_sync);
   Nan::SetMethod(obj, "new", __FLAC__metadata_simple_iterator_new);
-  Nan::SetMethod(obj, "deleteSync", NODE_FLAC__metadata_simple_iterator_delete_sync);
   Nan::SetMethod(obj, "delete", NODE_FLAC__metadata_simple_iterator_delete);
   Nan::SetMethod(obj, "status", NODE_FLAC__metadata_simple_iterator_status);
   Nan::SetMethod(obj, "init", NODE_FLAC__metadata_simple_iterator_init);
