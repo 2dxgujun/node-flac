@@ -5,7 +5,7 @@
 using namespace v8;
 using namespace node;
 
-NAN_METHOD(NODE_FLAC__metadata_object_new) {
+NAN_METHOD(__FLAC__metadata_object_new) {
   FLAC__MetadataType type = (FLAC__MetadataType) Nan::To<int>(info[0]).FromJust();
   FLAC__StreamMetadata* m = FLAC__metadata_object_new(type);
   if (m == nullptr) {
@@ -15,12 +15,30 @@ NAN_METHOD(NODE_FLAC__metadata_object_new) {
   }
 }
 
-NAN_METHOD(NODE_FLAC__metadata_object_delete) {
+NAN_ASYNC_METHOD(__FLAC__metadata_object_new) {
+  NEW_CALLBACK(cb)
+  FLAC__MetadataType type = (FLAC__MetadataType) Nan::To<int>(info[0]).FromJust();
+  Nan::AsyncQueueWorker(new BindingWorker<FLAC__StreamMetadata*, FLAC__MetadataType>(cb, 
+        [](BindingWorker<FLAC__StreamMetadata*, FLAC__MetadataType>* worker, FLAC__MetadataType type){
+        return FLAC__metadata_object_new(type);
+        }, type));
+}
+
+NAN_METHOD(__FLAC__metadata_object_delete) {
   FLAC__StreamMetadata* m = fromjs<FLAC__StreamMetadata>(info[0]);
   if (m != nullptr) FLAC__metadata_object_delete(m);
 }
 
-NAN_METHOD(NODE_FLAC__metadata_object_picture_set_mime_type) {
+NAN_ASYNC_METHOD(__FLAC__metadata_object_delete) {
+  NEW_CALLBACK(cb)
+  FLAC__StreamMetadata* m = fromjs<FLAC__StreamMetadata>(info[0]);
+  Nan::AsyncQueueWorker(new BindingWorker<void, FLAC__StreamMetadata*>(cb, 
+        [](BindingWorker<void, FLAC__StreamMetadata*>* worker, FLAC__StreamMetadata* m){
+          FLAC__metadata_object_delete(m);
+        }, m));
+}
+
+NAN_METHOD(__FLAC__metadata_object_picture_set_mime_type) {
   FLAC__StreamMetadata* m = fromjs<FLAC__StreamMetadata>(info[0]);
   if (m == nullptr) return;
   Nan::Utf8String mime_type(info[1]);
@@ -28,7 +46,20 @@ NAN_METHOD(NODE_FLAC__metadata_object_picture_set_mime_type) {
   info.GetReturnValue().Set(Nan::New<Boolean>(ret));
 }
 
-NAN_METHOD(NODE_FLAC__metadata_object_picture_set_description) {
+NAN_ASYNC_METHOD(__FLAC__metadata_object_picture_set_mime_type) {
+  NEW_CALLBACK(cb)
+  FLAC__StreamMetadata* m = fromjs<FLAC__StreamMetadata>(info[0]);
+  Nan::Utf8String mime_type(info[1]);
+  Nan::AsyncQueueWorker(new BindingWorker<void, FLAC__StreamMetadata*, char*>(cb, 
+        [](BindingWorker<void, FLAC__StreamMetadata*, char*>* worker, FLAC__StreamMetadata* m, 
+          char* mime_type){
+        if (!FLAC__metadata_object_picture_set_mime_type(m, mime_type, true)) {
+          worker->SetErrorMessage("Failed set mime_type to metadata object");
+        }
+        }, m, *mime_type));
+}
+
+NAN_METHOD(__FLAC__metadata_object_picture_set_description) {
   FLAC__StreamMetadata* m = fromjs<FLAC__StreamMetadata>(info[0]);
   if (m == nullptr) return;
   Nan::Utf8String description(info[1]);
@@ -36,7 +67,20 @@ NAN_METHOD(NODE_FLAC__metadata_object_picture_set_description) {
   info.GetReturnValue().Set(Nan::New<Boolean>(r));
 }
 
-NAN_METHOD(NODE_FLAC__metadata_object_picture_set_data) {
+NAN_ASYNC_METHOD(__FLAC__metadata_object_picture_set_description) {
+  NEW_CALLBACK(cb)
+  FLAC__StreamMetadata* m = fromjs<FLAC__StreamMetadata>(info[0]);
+  Nan::Utf8String description(info[1]);
+  Nan::AsyncQueueWorker(new BindingWorker<void, FLAC__StreamMetadata*, FLAC__byte*>(cb,
+        [](BindingWorker<void, FLAC__StreamMetadata*, FLAC__byte*>* worker, FLAC__StreamMetadata* m,
+          FLAC__byte* description){
+          if (!FLAC__metadata_object_picture_set_description(m, description, true)) {
+            worker->SetErrorMessage("Failed set description to metadata object");
+          }
+        }, m, *description));
+}
+
+NAN_METHOD(__FLAC__metadata_object_picture_set_data) {
   FLAC__StreamMetadata* m = fromjs<FLAC__StreamMetadata>(info[0]);
   if(m == nullptr) return;
   FLAC__byte* n = UnwrapPtr<FLAC__byte>(info[1]);
@@ -45,7 +89,21 @@ NAN_METHOD(NODE_FLAC__metadata_object_picture_set_data) {
   info.GetReturnValue().Set(Nan::New<Boolean>(r));
 }
 
-NAN_METHOD(NODE_FLAC__metadata_object_picture_is_legal) {
+NAN_ASYNC_METHOD(__FLAC__metadata_object_picture_set_data) {
+  NEW_CALLBACK(cb)
+  FLAC__StreamMetadata* m = fromjs<FLAC__StreamMetadata>(info[0]);
+  FLAC__byte* data = UnwrapPtr<FLAC_byte>(info[1]);
+  uint32_t length = uint32_t(Buffer::Length(info[1]));
+  Nan::AsyncQueueWorker(new BindingWorker<void, FLAC__StreamMetadata*, FLAC_byte*, uint32_t>(cb,
+        [](BindingWorker<void, FLAC__StreamMetadata*, FLAC_byte*, uint32_t>* worker, 
+          FLAC__StreamMetadata* m, FLAC_byte* data, uint32_t length){
+          if (!FLAC__metadata_object_picture_set_data(m, data, length, true)) {
+            worker->SetErrorMessage("Failed set data to metadata object");
+          }
+        }, m, data, length));
+}
+
+NAN_METHOD(__FLAC__metadata_object_picture_is_legal) {
   FLAC__StreamMetadata* m = fromjs<FLAC__StreamMetadata>(info[0]);
   if(m == nullptr) return;
   const char* n;
@@ -57,15 +115,28 @@ NAN_METHOD(NODE_FLAC__metadata_object_picture_is_legal) {
   }
 }
 
+NAN_ASYNC_METHOD(__FLAC__metadata_object_picture_is_legal) {
+  NEW_CALLBACK(cb)
+  FLAC__StreamMetadata* object = fromjs<FLAC__StreamMetadata>(info[0]);
+  const char* violation = nullptr;
+  Nan::AsyncQueueWorker(new BindingWorker<void, FLAC__StreamMetadata*, const char*>(cb,
+        [](BindingWorker<void, FLAC__StreamMetadata*, const char*>* worker, 
+         FLAC__StreamMetadata* object, const char* violation){
+          if (!FLAC__metadata_object_is_legal(object, &violation)) {
+            worker->SetErrorMessage(violation);
+          }
+        }, object, violation));
+}
+
 NAN_MODULE_INIT(init_metadata_object) {
   Local<Object> obj = Nan::New<Object>();
 
-  Nan::SetMethod(obj, "new", NODE_FLAC__metadata_object_new);
-  Nan::SetMethod(obj, "delete", NODE_FLAC__metadata_object_delete);
-  Nan::SetMethod(obj, "picture_set_mime_type", NODE_FLAC__metadata_object_picture_set_mime_type);
-  Nan::SetMethod(obj, "picture_set_description", NODE_FLAC__metadata_object_picture_set_description);
-  Nan::SetMethod(obj, "picture_set_data", NODE_FLAC__metadata_object_picture_set_data);
-  Nan::SetMethod(obj, "picture_is_legal", NODE_FLAC__metadata_object_picture_is_legal);
+  SET_METHOD(new, __FLAC__metadata_object_new)
+  SET_METHOD(delete, __FLAC__metadata_object_delete)
+  SET_METHOD(picture_set_mime_type, __FLAC__metadata_object_picture_set_mime_type)
+  SET_METHOD(picture_set_description, __FLAC__metadata_object_picture_set_description)
+  SET_METHOD(picture_set_data, __FLAC__metadata_object_picture_set_data)
+  SET_METHOD(picture_is_legal, __FLAC__metadata_object_picture_is_legal)
 
   Nan::Set(target, Nan::New("metadata_object").ToLocalChecked(), obj);
 }
