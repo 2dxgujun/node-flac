@@ -1,6 +1,16 @@
 #ifndef FLAC_BINDINGS__BINDING_H_
 #define FLAC_BINDINGS__BINDING_H_
 
+#define NAN_ASYNC_METHOD(name) NAN_METHOD(name##_async)
+
+#define NEW_CALLBACK(name)                 \
+  Nan::Callback* name = new Nan::Callback( \
+      Nan::To<Function>(info[info.Length() - 1]).ToLocalChecked());
+
+#define SET_METHOD(name, func)             \
+  Nan::SetMethod(obj, #name "_sync", func); \
+  Nan::SetMethod(obj, #name, func##_async);
+
 #include <FLAC/metadata.h>
 #include <nan.h>
 #include <functional>

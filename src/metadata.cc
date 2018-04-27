@@ -2,10 +2,6 @@
 #include <nan.h>
 #include "binding.h"
 
-#define NAN_ASYNC_METHOD(name) NAN_METHOD(name##_async)
-#define NEW_CALLBACK(name)                 \
-  Nan::Callback* name = new Nan::Callback( \
-      Nan::To<Function>(info[info.Length() - 1]).ToLocalChecked());
 #define CHECK_ITERATOR_STATUS(it)                                   \
   worker->SetErrorMessage(FLAC__Metadata_SimpleIteratorStatusString \
                               [FLAC__metadata_simple_iterator_status(it)]);
@@ -455,10 +451,6 @@ NAN_INDEX_ENUMERATOR(SimpleIteratorStatusString) {
 
 NAN_MODULE_INIT(init_metadata) {
   Local<Object> obj = Nan::New<Object>();
-
-#define SET_METHOD(name, func)             \
-  Nan::SetMethod(obj, #name "Sync", func); \
-  Nan::SetMethod(obj, #name, func##_async);
 
   SET_METHOD(new, __FLAC__metadata_simple_iterator_new)
   SET_METHOD(delete, __FLAC__metadata_simple_iterator_delete)
