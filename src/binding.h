@@ -7,7 +7,7 @@
   Nan::Callback* name = new Nan::Callback( \
       Nan::To<Function>(info[info.Length() - 1]).ToLocalChecked());
 
-#define SET_METHOD(name, func)             \
+#define SET_METHOD(name, func)              \
   Nan::SetMethod(obj, #name "_sync", func); \
   Nan::SetMethod(obj, #name, func##_async);
 
