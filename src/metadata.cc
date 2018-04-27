@@ -11,13 +11,21 @@ using namespace node;
 
 template <>
 Local<Object> StructToJs(FLAC__Metadata_SimpleIterator* i) {
-  return WrapPtr(i).ToLocalChecked();
+  Nan::EscapableHandleScope scope;
+  Local<Object> ptr = Nan::NewBuffer((char*)i, 0,
+                                     [](char* i, void* hint) {
+                                       FLAC__metadata_simple_iterator_delete(
+                                           (FLAC__Metadata_SimpleIterator*)i);
+                                     },
+                                     nullptr)
+                          .ToLocalChecked();
+  return scope.Escape(ptr);
 }
 
 NAN_METHOD(__FLAC__metadata_simple_iterator_new) {
   FLAC__Metadata_SimpleIterator* it = FLAC__metadata_simple_iterator_new();
   if (it != nullptr) {
-    info.GetReturnValue().Set(WrapPtr(it).ToLocalChecked());
+    info.GetReturnValue().Set(StructToJs(it));
   } else {
     info.GetReturnValue().SetNull();
   }

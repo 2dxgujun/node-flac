@@ -219,7 +219,7 @@ NAN_ASYNC_METHOD(__FLAC__format_picture_is_legal) {
 }
 
 template <>
-void StructToJs(const FLAC__StreamMetadata* i, Local<Object>& obj) {
+void StructToJs(FLAC__StreamMetadata* i, Local<Object>& obj) {
   if (i->type == FLAC__METADATA_TYPE_PICTURE) {
     obj = StructToJs(&i->data.picture);
   } else {
@@ -233,12 +233,19 @@ void StructToJs(const FLAC__StreamMetadata* i, Local<Object>& obj) {
   Nan::SetAccessor(obj, Nan::New("length").ToLocalChecked(),
                    FLAC__StreamMetadata_length);
 
-  Nan::Set(obj, Nan::New("_ptr").ToLocalChecked(),
-           WrapPtr(i, sizeof(FLAC__StreamMetadata)).ToLocalChecked());
+  Local<Object> ptr =
+      Nan::NewBuffer((char*)i, 0,
+                     [](char* i, void* hint) {
+                       FLAC__metadata_object_delete((FLAC__StreamMetadata*)i);
+                     },
+                     nullptr)
+          .ToLocalChecked();
+
+  Nan::Set(obj, Nan::New("_ptr").ToLocalChecked(), ptr);
 }
 
 template <>
-void StructToJs(const FLAC__StreamMetadata_Picture* i, Local<Object>& obj) {
+void StructToJs(FLAC__StreamMetadata_Picture* i, Local<Object>& obj) {
   Nan::SetAccessor(obj, Nan::New("type").ToLocalChecked(),
                    FLAC__StreamMetadata_Picture_type,
                    FLAC__StreamMetadata_Picture_type);

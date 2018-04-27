@@ -1,12 +1,12 @@
 {
-  "name": "hello-world",
+  "name": "node-flac",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Wrapper around libFLAC",
+  "main": "lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Jun Gu <2dxgujun@gmail.com>",
   "license": "ISC",
   "dependencies": {
     "bindings": "^1.3.0",
