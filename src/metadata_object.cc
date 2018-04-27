@@ -77,7 +77,7 @@ NAN_ASYNC_METHOD(__FLAC__metadata_object_picture_set_description) {
           if (!FLAC__metadata_object_picture_set_description(m, description, true)) {
             worker->SetErrorMessage("Failed set description to metadata object");
           }
-        }, m, *description));
+        }, m, (FLAC__byte)*description));
 }
 
 NAN_METHOD(__FLAC__metadata_object_picture_set_data) {
@@ -92,11 +92,11 @@ NAN_METHOD(__FLAC__metadata_object_picture_set_data) {
 NAN_ASYNC_METHOD(__FLAC__metadata_object_picture_set_data) {
   NEW_CALLBACK(cb)
   FLAC__StreamMetadata* m = fromjs<FLAC__StreamMetadata>(info[0]);
-  FLAC__byte* data = UnwrapPtr<FLAC_byte>(info[1]);
+  FLAC__byte* data = UnwrapPtr<FLAC__byte>(info[1]);
   uint32_t length = uint32_t(Buffer::Length(info[1]));
   Nan::AsyncQueueWorker(new BindingWorker<void, FLAC__StreamMetadata*, FLAC_byte*, uint32_t>(cb,
         [](BindingWorker<void, FLAC__StreamMetadata*, FLAC_byte*, uint32_t>* worker, 
-          FLAC__StreamMetadata* m, FLAC_byte* data, uint32_t length){
+          FLAC__StreamMetadata* m, FLAC__byte* data, uint32_t length){
           if (!FLAC__metadata_object_picture_set_data(m, data, length, true)) {
             worker->SetErrorMessage("Failed set data to metadata object");
           }
@@ -122,7 +122,7 @@ NAN_ASYNC_METHOD(__FLAC__metadata_object_picture_is_legal) {
   Nan::AsyncQueueWorker(new BindingWorker<void, FLAC__StreamMetadata*, const char*>(cb,
         [](BindingWorker<void, FLAC__StreamMetadata*, const char*>* worker, 
          FLAC__StreamMetadata* object, const char* violation){
-          if (!FLAC__metadata_object_is_legal(object, &violation)) {
+          if (!FLAC__metadata_object_picture_is_legal(object, &violation)) {
             worker->SetErrorMessage(violation);
           }
         }, object, violation));
