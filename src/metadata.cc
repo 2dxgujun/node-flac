@@ -99,17 +99,22 @@ NAN_ASYNC_METHOD(__FLAC__metadata_simple_iterator_init) {
   Nan::Utf8String filename(info[1]);
   FLAC__bool read_only = Nan::To<int>(info[2]).FromMaybe(0);
   FLAC__bool preserve_file_stats = Nan::To<int>(info[3]).FromMaybe(0);
-  Nan::AsyncQueueWorker(new BindingWorker<void, FLAC__Metadata_SimpleIterator*,
+  Nan::AsyncQueueWorker(new BindingWorker<FLAC__Metadata_SimpleIterator*,
+                                          FLAC__Metadata_SimpleIterator*,
                                           const char*, FLAC__bool, FLAC__bool>(
       cb,
-      [](BindingWorker<void, FLAC__Metadata_SimpleIterator*, const char*,
-                       FLAC__bool, FLAC__bool>* worker,
+      [](BindingWorker<FLAC__Metadata_SimpleIterator*,
+                       FLAC__Metadata_SimpleIterator*, const char*, FLAC__bool,
+                       FLAC__bool>* worker,
          FLAC__Metadata_SimpleIterator* it, const char* filename,
-         FLAC__bool read_only, FLAC__bool preserve_file_stats) {
-        if (!FLAC__metadata_simple_iterator_init(it, filename, read_only,
-                                                 preserve_file_stats)) {
-          CHECK_ITERATOR_STATUS(it)
+         FLAC__bool read_only,
+         FLAC__bool preserve_file_stats) -> FLAC__Metadata_SimpleIterator* {
+        if (FLAC__metadata_simple_iterator_init(it, filename, read_only,
+                                                preserve_file_stats)) {
+          return it;
         }
+        CHECK_ITERATOR_STATUS(it)
+        return nullptr;
       },
       it, *filename, read_only, preserve_file_stats));
 }
@@ -146,15 +151,14 @@ NAN_ASYNC_METHOD(__FLAC__metadata_simple_iterator_next) {
   NEW_CALLBACK(cb)
   FLAC__Metadata_SimpleIterator* it =
       UnwrapPtr<FLAC__Metadata_SimpleIterator>(info[0]);
-  Nan::AsyncQueueWorker(new BindingWorker<void, FLAC__Metadata_SimpleIterator*>(
-      cb,
-      [](BindingWorker<void, FLAC__Metadata_SimpleIterator*>* worker,
-         FLAC__Metadata_SimpleIterator* it) {
-        if (!FLAC__metadata_simple_iterator_next(it)) {
-          CHECK_ITERATOR_STATUS(it)
-        }
-      },
-      it));
+  Nan::AsyncQueueWorker(
+      new BindingWorker<FLAC__bool, FLAC__Metadata_SimpleIterator*>(
+          cb,
+          [](BindingWorker<FLAC__bool, FLAC__Metadata_SimpleIterator*>* worker,
+             FLAC__Metadata_SimpleIterator* it) {
+            return FLAC__metadata_simple_iterator_next(it);
+          },
+          it));
 }
 
 NAN_METHOD(__FLAC__metadata_simple_iterator_prev) {
@@ -168,15 +172,14 @@ NAN_ASYNC_METHOD(__FLAC__metadata_simple_iterator_prev) {
   NEW_CALLBACK(cb)
   FLAC__Metadata_SimpleIterator* it =
       UnwrapPtr<FLAC__Metadata_SimpleIterator>(info[0]);
-  Nan::AsyncQueueWorker(new BindingWorker<void, FLAC__Metadata_SimpleIterator*>(
-      cb,
-      [](BindingWorker<void, FLAC__Metadata_SimpleIterator*>* worker,
-         FLAC__Metadata_SimpleIterator* it) {
-        if (!FLAC__metadata_simple_iterator_prev(it)) {
-          CHECK_ITERATOR_STATUS(it)
-        }
-      },
-      it));
+  Nan::AsyncQueueWorker(
+      new BindingWorker<FLAC__bool, FLAC__Metadata_SimpleIterator*>(
+          cb,
+          [](BindingWorker<FLAC__bool, FLAC__Metadata_SimpleIterator*>* worker,
+             FLAC__Metadata_SimpleIterator* it) {
+            return FLAC__metadata_simple_iterator_prev(it);
+          },
+          it));
 }
 
 NAN_METHOD(__FLAC__metadata_simple_iterator_is_last) {
@@ -190,15 +193,14 @@ NAN_ASYNC_METHOD(__FLAC__metadata_simple_iterator_is_last) {
   NEW_CALLBACK(cb)
   FLAC__Metadata_SimpleIterator* it =
       UnwrapPtr<FLAC__Metadata_SimpleIterator>(info[0]);
-  Nan::AsyncQueueWorker(new BindingWorker<void, FLAC__Metadata_SimpleIterator*>(
-      cb,
-      [](BindingWorker<void, FLAC__Metadata_SimpleIterator*>* worker,
-         FLAC__Metadata_SimpleIterator* it) {
-        if (!FLAC__metadata_simple_iterator_is_last(it)) {
-          CHECK_ITERATOR_STATUS(it)
-        }
-      },
-      it));
+  Nan::AsyncQueueWorker(
+      new BindingWorker<FLAC__bool, FLAC__Metadata_SimpleIterator*>(
+          cb,
+          [](BindingWorker<FLAC__bool, FLAC__Metadata_SimpleIterator*>* worker,
+             FLAC__Metadata_SimpleIterator* it) {
+            return FLAC__metadata_simple_iterator_is_last(it);
+          },
+          it));
 }
 
 NAN_METHOD(__FLAC__metadata_simple_iterator_get_block_offset) {
@@ -226,7 +228,7 @@ NAN_METHOD(__FLAC__metadata_simple_iterator_get_block_type) {
   FLAC__Metadata_SimpleIterator* it =
       UnwrapPtr<FLAC__Metadata_SimpleIterator>(info[0]);
   FLAC__MetadataType r = FLAC__metadata_simple_iterator_get_block_type(it);
-  info.GetReturnValue().Set(Nan::New<Number>(r));
+  info.GetReturnValue().Set(StructToJs(r));
 }
 
 NAN_ASYNC_METHOD(__FLAC__metadata_simple_iterator_get_block_type) {
@@ -470,6 +472,7 @@ NAN_MODULE_INIT(init_metadata) {
   SET_METHOD(is_last, __FLAC__metadata_simple_iterator_is_last)
   SET_METHOD(get_block_offset,
              __FLAC__metadata_simple_iterator_get_block_offset)
+  SET_METHOD(get_block_type, __FLAC__metadata_simple_iterator_get_block_type)
   SET_METHOD(get_block_length,
              __FLAC__metadata_simple_iterator_get_block_length)
   SET_METHOD(get_application_id,

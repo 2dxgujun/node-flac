@@ -219,6 +219,34 @@ NAN_ASYNC_METHOD(__FLAC__format_picture_is_legal) {
 }
 
 template <>
+Local<Value> StructToJs(off_t i) {
+  Nan::EscapableHandleScope scope;
+  return scope.Escape(Nan::New<Number>(i));
+}
+
+template <>
+Local<Value> StructToJs(unsigned i) {
+  Nan::EscapableHandleScope scope;
+  return scope.Escape(Nan::New<Number>(i));
+}
+
+template <>
+Local<Value> StructToJs(FLAC__MetadataType i) {
+  Nan::EscapableHandleScope scope;
+  return scope.Escape(Nan::New<Number>(i));
+}
+
+template <>
+Local<Value> StructToJs(FLAC__bool i) {
+  Nan::EscapableHandleScope scope;
+  if (i) {
+    return scope.Escape(Nan::True());
+  } else {
+    return scope.Escape(Nan::False());
+  }
+}
+
+template <>
 void StructToJs(FLAC__StreamMetadata* i, Local<Object>& obj) {
   if (i->type == FLAC__METADATA_TYPE_PICTURE) {
     obj = StructToJs(&i->data.picture);

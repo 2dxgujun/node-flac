@@ -70,16 +70,7 @@ Local<Object> StructToJs(T* i) {
 }
 
 template <typename T>
-Local<Value> StructToJs(T i) {
-  Nan::EscapableHandleScope scope;
-  return scope.Escape(Nan::New(i));
-}
-
-template <>
-inline Local<Value> StructToJs(off_t i) {
-  Nan::EscapableHandleScope scope;
-  return scope.Escape(Nan::New<Number>(i));
-}
+Local<Value> StructToJs(T i);
 
 template <typename T>
 T* fromjs(const Local<Value>& m) {
