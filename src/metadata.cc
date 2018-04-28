@@ -11,15 +11,14 @@ using namespace node;
 
 template <>
 Local<Object> StructToJs(FLAC__Metadata_SimpleIterator* i) {
-  Nan::EscapableHandleScope scope;
-  Local<Object> ptr = Nan::NewBuffer((char*)i, 0,
-                                     [](char* i, void* hint) {
-                                       FLAC__metadata_simple_iterator_delete(
-                                           (FLAC__Metadata_SimpleIterator*)i);
-                                     },
-                                     nullptr)
-                          .ToLocalChecked();
-  return scope.Escape(ptr);
+  return Nan::NewBuffer((char*)i, 0,
+                        [](char* i, void* hint) {
+                          //Nan::ThrowError("FUCK");
+                          FLAC__metadata_simple_iterator_delete(
+                              (FLAC__Metadata_SimpleIterator*)i);
+                        },
+                        nullptr)
+      .ToLocalChecked();
 }
 
 NAN_METHOD(__FLAC__metadata_simple_iterator_new) {
@@ -99,22 +98,17 @@ NAN_ASYNC_METHOD(__FLAC__metadata_simple_iterator_init) {
   Nan::Utf8String filename(info[1]);
   FLAC__bool read_only = Nan::To<int>(info[2]).FromMaybe(0);
   FLAC__bool preserve_file_stats = Nan::To<int>(info[3]).FromMaybe(0);
-  Nan::AsyncQueueWorker(new BindingWorker<FLAC__Metadata_SimpleIterator*,
-                                          FLAC__Metadata_SimpleIterator*,
+  Nan::AsyncQueueWorker(new BindingWorker<void, FLAC__Metadata_SimpleIterator*,
                                           const char*, FLAC__bool, FLAC__bool>(
       cb,
-      [](BindingWorker<FLAC__Metadata_SimpleIterator*,
-                       FLAC__Metadata_SimpleIterator*, const char*, FLAC__bool,
-                       FLAC__bool>* worker,
+      [](BindingWorker<void, FLAC__Metadata_SimpleIterator*, const char*,
+                       FLAC__bool, FLAC__bool>* worker,
          FLAC__Metadata_SimpleIterator* it, const char* filename,
-         FLAC__bool read_only,
-         FLAC__bool preserve_file_stats) -> FLAC__Metadata_SimpleIterator* {
-        if (FLAC__metadata_simple_iterator_init(it, filename, read_only,
-                                                preserve_file_stats)) {
-          return it;
+         FLAC__bool read_only, FLAC__bool preserve_file_stats) {
+        if (!FLAC__metadata_simple_iterator_init(it, filename, read_only,
+                                                 preserve_file_stats)) {
+          CHECK_ITERATOR_STATUS(it)
         }
-        CHECK_ITERATOR_STATUS(it)
-        return nullptr;
       },
       it, *filename, read_only, preserve_file_stats));
 }
