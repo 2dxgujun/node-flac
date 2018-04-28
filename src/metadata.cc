@@ -12,12 +12,11 @@ using namespace node;
 template <>
 Local<Object> StructToJs(FLAC__Metadata_SimpleIterator* i) {
   return Nan::NewBuffer((char*)i, 0,
-                        [](char* i, void* hint) {
-                          //Nan::ThrowError("FUCK");
+                        [](char* i, void* it) {
                           FLAC__metadata_simple_iterator_delete(
-                              (FLAC__Metadata_SimpleIterator*)i);
+                              (FLAC__Metadata_SimpleIterator*)it);
                         },
-                        nullptr)
+                        i)
       .ToLocalChecked();
 }
 
