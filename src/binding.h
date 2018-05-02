@@ -39,17 +39,15 @@ T* getPointer(const Local<Object>& thiz) {
   Nan::MaybeLocal<Value> _ptr =
       Nan::Get(thiz, Nan::New("_ptr").ToLocalChecked());
   if (_ptr.IsEmpty()) {
-    Nan::ThrowError(Nan::Error("Object is not a Metadata object"));
+    Nan::ThrowError("Object is not a Metadata object");
   } else {
     Local<Value> val = _ptr.ToLocalChecked();
     if (!val->IsObject()) {
-      Nan::ThrowError(
-          Nan::Error("Corrupted Metadata object: Pointer is not an object"));
+      Nan::ThrowError("Corrupted Metadata object: Pointer is not an object");
     } else {
       Local<Object> obj = val.As<Object>();
       if (!Buffer::HasInstance(obj)) {
-        Nan::ThrowError(
-            Nan::Error("Corrupted Metadata object: Pointer is invalid"));
+        Nan::ThrowError("Corrupted Metadata object: Pointer is invalid");
       } else {
         return UnwrapPtr<T>(obj);
       }

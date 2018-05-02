@@ -1,4 +1,5 @@
 var flac = require('../lib')
+var util = require('util')
 var Promise = require('bluebird')
 
 function dumpRecursive(it, index = 0) {
@@ -14,7 +15,10 @@ function dumpRecursive(it, index = 0) {
           return flac.metadata.get_block_offset(it).then(offset => {
             console.log(`  offset: ${offset}`)
             if (type === flac.format.MetadataType['PICTURE']) {
-              console.log('FUCK')
+              //return flac.metadata.get_block(it).then(data => {
+              //  console.log('  data:')
+              //  console.log(`  ${util.inspect(data)}`)
+              //})
             }
           })
         })
@@ -49,7 +53,7 @@ function dump(path) {
 
 function start() {
   const tasks = []
-  for (let i = 0; i < 1; i++) {
+  for (let i = 0; i < 1000; i++) {
     tasks.push('/Users/2dxgujun/Desktop/audio.flac')
   }
   return Promise.mapSeries(tasks, path => {
@@ -57,12 +61,11 @@ function start() {
   })
 }
 
-console.log('Start after 5 seconds')
 gc()
 setTimeout(() => {
   start().then(() => {
     console.log('Finished')
   })
-}, 5000)
+}, 3000)
 
 setTimeout(() => {}, 9999999)
