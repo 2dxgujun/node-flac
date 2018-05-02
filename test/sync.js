@@ -1,7 +1,7 @@
 var flac = require('../lib')
 
 function main() {
-  for (let i = 0; i < 1000; i++) {
+  for (let i = 0; i < 10000; i++) {
     let it = flac.metadata.new_sync()
     flac.metadata.init_sync(
       it,
@@ -26,7 +26,7 @@ function main() {
         flac.format.MetadataType['PICTURE']
       ) {
         let data = flac.metadata.get_block_sync(it)
-        flac.metadata_object.delete_sync(data)
+        //flac.metadata_object.delete_sync(data)
         //console.log(data)
       }
     } while (flac.metadata.next_sync(it))

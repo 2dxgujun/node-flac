@@ -10,7 +10,7 @@ NAN_GETTER(FLAC__StreamMetadata_type) {
   info.GetReturnValue().Set(Nan::New(m->type));
 }
 
-NAN_GETTER(FLAC__StreamMetadata_isLast) {
+NAN_GETTER(FLAC__StreamMetadata_is_last) {
   FLAC__StreamMetadata* m = getPointer<FLAC__StreamMetadata>(info.This());
   info.GetReturnValue().Set(Nan::New<Boolean>(m->is_last));
 }
@@ -20,95 +20,116 @@ NAN_GETTER(FLAC__StreamMetadata_length) {
   info.GetReturnValue().Set(Nan::New(m->length));
 }
 
-NAN_GETTER(FLAC__StreamMetadata_Picture_type) {
+template <>
+void StructToJs(FLAC__StreamMetadata_Picture*, Local<Object>&);
+
+NAN_GETTER(FLAC__StreamMetadata_data) {
   FLAC__StreamMetadata* m = getPointer<FLAC__StreamMetadata>(info.This());
-  info.GetReturnValue().Set(Nan::New((uint32_t)m->data.picture.type));
+  Local<Object> obj = Nan::New<Object>();
+  if (m->type == FLAC__METADATA_TYPE_PICTURE) {
+    StructToJs(&m->data.picture, obj);
+  }
+  info.GetReturnValue().Set(obj);
+}
+
+NAN_GETTER(FLAC__StreamMetadata_Picture_type) {
+  FLAC__StreamMetadata_Picture* i =
+      getPointer<FLAC__StreamMetadata_Picture>(info.This());
+  info.GetReturnValue().Set(Nan::New((uint32_t)i->type));
 }
 
 NAN_SETTER(FLAC__StreamMetadata_Picture_type) {
-  FLAC__StreamMetadata* m = getPointer<FLAC__StreamMetadata>(info.This());
+  FLAC__StreamMetadata_Picture* i =
+      getPointer<FLAC__StreamMetadata_Picture>(info.This());
   MaybeLocal<Number> v = Nan::To<Number>(info.Data());
   if (v.IsEmpty()) {
     Nan::ThrowError("Invalid value: Has to be a Number");
   }
-  m->data.picture.type =
+  i->type =
       (FLAC__StreamMetadata_Picture_Type)Nan::To<uint32_t>(v.ToLocalChecked())
           .FromJust();
 }
 
 NAN_GETTER(FLAC__StreamMetadata_Picture_mime_type) {
-  FLAC__StreamMetadata* m = getPointer<FLAC__StreamMetadata>(info.This());
-  info.GetReturnValue().Set(
-      Nan::New(m->data.picture.mime_type).ToLocalChecked());
+  FLAC__StreamMetadata_Picture* i =
+      getPointer<FLAC__StreamMetadata_Picture>(info.This());
+  info.GetReturnValue().Set(Nan::New(i->mime_type).ToLocalChecked());
 }
 
 NAN_GETTER(FLAC__StreamMetadata_Picture_description) {
-  FLAC__StreamMetadata* m = getPointer<FLAC__StreamMetadata>(info.This());
-  info.GetReturnValue().Set(
-      Nan::New((char*)m->data.picture.description).ToLocalChecked());
+  FLAC__StreamMetadata_Picture* i =
+      getPointer<FLAC__StreamMetadata_Picture>(info.This());
+  info.GetReturnValue().Set(Nan::New((char*)i->description).ToLocalChecked());
 }
 
 NAN_GETTER(FLAC__StreamMetadata_Picture_width) {
-  FLAC__StreamMetadata* m = getPointer<FLAC__StreamMetadata>(info.This());
-  info.GetReturnValue().Set(Nan::New(m->data.picture.width));
+  FLAC__StreamMetadata_Picture* i =
+      getPointer<FLAC__StreamMetadata_Picture>(info.This());
+  info.GetReturnValue().Set(Nan::New(i->width));
 }
 
 NAN_SETTER(FLAC__StreamMetadata_Picture_width) {
-  FLAC__StreamMetadata* m = getPointer<FLAC__StreamMetadata>(info.This());
+  FLAC__StreamMetadata_Picture* i =
+      getPointer<FLAC__StreamMetadata_Picture>(info.This());
   MaybeLocal<Number> v = Nan::To<Number>(info.Data());
   if (v.IsEmpty()) {
     Nan::ThrowError("Invalid value: Has to be a Number");
   }
-  m->data.picture.width = Nan::To<uint32_t>(v.ToLocalChecked()).FromJust();
+  i->width = Nan::To<uint32_t>(v.ToLocalChecked()).FromJust();
 }
 
 NAN_GETTER(FLAC__StreamMetadata_Picture_height) {
-  FLAC__StreamMetadata* m = getPointer<FLAC__StreamMetadata>(info.This());
-  info.GetReturnValue().Set(Nan::New(m->data.picture.height));
+  FLAC__StreamMetadata_Picture* i =
+      getPointer<FLAC__StreamMetadata_Picture>(info.This());
+  info.GetReturnValue().Set(Nan::New(i->height));
 }
 
 NAN_SETTER(FLAC__StreamMetadata_Picture_height) {
-  FLAC__StreamMetadata* m = getPointer<FLAC__StreamMetadata>(info.This());
+  FLAC__StreamMetadata_Picture* i =
+      getPointer<FLAC__StreamMetadata_Picture>(info.This());
   MaybeLocal<Number> v = Nan::To<Number>(info.Data());
   if (v.IsEmpty()) {
     Nan::ThrowError("Invalid value: Has to be a Number");
   }
-  m->data.picture.height = Nan::To<uint32_t>(v.ToLocalChecked()).FromJust();
+  i->height = Nan::To<uint32_t>(v.ToLocalChecked()).FromJust();
 }
 
 NAN_GETTER(FLAC__StreamMetadata_Picture_depth) {
-  FLAC__StreamMetadata* m = getPointer<FLAC__StreamMetadata>(info.This());
-  info.GetReturnValue().Set(Nan::New(m->data.picture.depth));
+  FLAC__StreamMetadata_Picture* i =
+      getPointer<FLAC__StreamMetadata_Picture>(info.This());
+  info.GetReturnValue().Set(Nan::New(i->depth));
 }
 
 NAN_SETTER(FLAC__StreamMetadata_Picture_depth) {
-  FLAC__StreamMetadata* m = getPointer<FLAC__StreamMetadata>(info.This());
+  FLAC__StreamMetadata_Picture* i =
+      getPointer<FLAC__StreamMetadata_Picture>(info.This());
   MaybeLocal<Number> v = Nan::To<Number>(info.Data());
   if (v.IsEmpty()) {
     Nan::ThrowError("Invalid value: Has to be a Number");
   }
-  m->data.picture.depth = Nan::To<uint32_t>(v.ToLocalChecked()).FromJust();
+  i->depth = Nan::To<uint32_t>(v.ToLocalChecked()).FromJust();
 }
 
 NAN_GETTER(FLAC__StreamMetadata_Picture_colors) {
-  FLAC__StreamMetadata* m = getPointer<FLAC__StreamMetadata>(info.This());
-  info.GetReturnValue().Set(Nan::New(m->data.picture.colors));
+  FLAC__StreamMetadata_Picture* i =
+      getPointer<FLAC__StreamMetadata_Picture>(info.This());
+  info.GetReturnValue().Set(Nan::New(i->colors));
 }
 
 NAN_SETTER(FLAC__StreamMetadata_Picture_colors) {
-  FLAC__StreamMetadata* m = getPointer<FLAC__StreamMetadata>(info.This());
+  FLAC__StreamMetadata_Picture* i =
+      getPointer<FLAC__StreamMetadata_Picture>(info.This());
   MaybeLocal<Number> v = Nan::To<Number>(info.Data());
   if (v.IsEmpty()) {
     Nan::ThrowError("Invalid value: Has to be a Number");
   }
-  m->data.picture.colors = Nan::To<uint32_t>(v.ToLocalChecked()).FromJust();
+  i->colors = Nan::To<uint32_t>(v.ToLocalChecked()).FromJust();
 }
 
 NAN_GETTER(FLAC__StreamMetadata_Picture_data) {
-  FLAC__StreamMetadata* m = getPointer<FLAC__StreamMetadata>(info.This());
-  info.GetReturnValue().Set(
-      WrapPtr(m->data.picture.data, m->data.picture.data_length)
-          .ToLocalChecked());
+  FLAC__StreamMetadata_Picture* i =
+      getPointer<FLAC__StreamMetadata_Picture>(info.This());
+  info.GetReturnValue().Set(WrapPtr(i->data, i->data_length).ToLocalChecked());
 }
 
 NAN_PROPERTY_GETTER(MetadataType) {
@@ -246,43 +267,60 @@ Local<Value> StructToJs(FLAC__bool i) {
   }
 }
 
+static Nan::Persistent<ObjectTemplate> StreamMetadata_PictureTemplatePersistent;
+
 template <>
 void StructToJs(FLAC__StreamMetadata_Picture* i, Local<Object>& obj) {
-  Nan::SetAccessor(obj, Nan::New("type").ToLocalChecked(),
-                   FLAC__StreamMetadata_Picture_type,
-                   FLAC__StreamMetadata_Picture_type);
-  Nan::SetAccessor(obj, Nan::New("mime_type").ToLocalChecked(),
-                   FLAC__StreamMetadata_Picture_mime_type);
-  Nan::SetAccessor(obj, Nan::New("description").ToLocalChecked(),
-                   FLAC__StreamMetadata_Picture_description);
-  Nan::SetAccessor(obj, Nan::New("width").ToLocalChecked(),
-                   FLAC__StreamMetadata_Picture_width,
-                   FLAC__StreamMetadata_Picture_width);
-  Nan::SetAccessor(obj, Nan::New("height").ToLocalChecked(),
-                   FLAC__StreamMetadata_Picture_height,
-                   FLAC__StreamMetadata_Picture_height);
-  Nan::SetAccessor(obj, Nan::New("depth").ToLocalChecked(),
-                   FLAC__StreamMetadata_Picture_depth,
-                   FLAC__StreamMetadata_Picture_depth);
-  Nan::SetAccessor(obj, Nan::New("colors").ToLocalChecked(),
-                   FLAC__StreamMetadata_Picture_colors,
-                   FLAC__StreamMetadata_Picture_colors);
-  Nan::SetAccessor(obj, Nan::New("data").ToLocalChecked(),
-                   FLAC__StreamMetadata_Picture_data);
+  if (StreamMetadata_PictureTemplatePersistent.IsEmpty()) {
+    Local<ObjectTemplate> otpl = Nan::New<ObjectTemplate>();
+    Nan::SetAccessor(otpl, Nan::New("type").ToLocalChecked(),
+                     FLAC__StreamMetadata_Picture_type,
+                     FLAC__StreamMetadata_Picture_type);
+    Nan::SetAccessor(otpl, Nan::New("mime_type").ToLocalChecked(),
+                     FLAC__StreamMetadata_Picture_mime_type);
+    Nan::SetAccessor(otpl, Nan::New("description").ToLocalChecked(),
+                     FLAC__StreamMetadata_Picture_description);
+    Nan::SetAccessor(otpl, Nan::New("width").ToLocalChecked(),
+                     FLAC__StreamMetadata_Picture_width,
+                     FLAC__StreamMetadata_Picture_width);
+    Nan::SetAccessor(otpl, Nan::New("height").ToLocalChecked(),
+                     FLAC__StreamMetadata_Picture_height,
+                     FLAC__StreamMetadata_Picture_height);
+    Nan::SetAccessor(otpl, Nan::New("depth").ToLocalChecked(),
+                     FLAC__StreamMetadata_Picture_depth,
+                     FLAC__StreamMetadata_Picture_depth);
+    Nan::SetAccessor(otpl, Nan::New("colors").ToLocalChecked(),
+                     FLAC__StreamMetadata_Picture_colors,
+                     FLAC__StreamMetadata_Picture_colors);
+    Nan::SetAccessor(otpl, Nan::New("data").ToLocalChecked(),
+                     FLAC__StreamMetadata_Picture_data);
+    StreamMetadata_PictureTemplatePersistent.Reset(otpl);
+  }
+  obj = Nan::NewInstance(Nan::New(StreamMetadata_PictureTemplatePersistent))
+            .ToLocalChecked();
+
+  Local<Object> ptr = WrapPtr(i).ToLocalChecked();
+  Nan::Set(obj, Nan::New("_ptr").ToLocalChecked(), ptr);
 }
+
+static Nan::Persistent<ObjectTemplate> StreamMetadataTemplatePersistent;
 
 template <>
 void StructToJs(FLAC__StreamMetadata* i, Local<Object>& obj) {
-  if (i->type == FLAC__METADATA_TYPE_PICTURE) {
-    StructToJs(&i->data.picture, obj);
+  if (StreamMetadataTemplatePersistent.IsEmpty()) {
+    Local<ObjectTemplate> otpl = Nan::New<ObjectTemplate>();
+    Nan::SetAccessor(otpl, Nan::New("type").ToLocalChecked(),
+                     FLAC__StreamMetadata_type);
+    Nan::SetAccessor(otpl, Nan::New("is_last").ToLocalChecked(),
+                     FLAC__StreamMetadata_is_last);
+    Nan::SetAccessor(otpl, Nan::New("length").ToLocalChecked(),
+                     FLAC__StreamMetadata_length);
+    Nan::SetAccessor(otpl, Nan::New("data").ToLocalChecked(),
+                     FLAC__StreamMetadata_data);
+    StreamMetadataTemplatePersistent.Reset(otpl);
   }
-
-  Nan::SetAccessor(obj, Nan::New("type").ToLocalChecked(),
-                   FLAC__StreamMetadata_type);
-  Nan::SetAccessor(obj, Nan::New("isLast").ToLocalChecked(),
-                   FLAC__StreamMetadata_isLast);
-  Nan::SetAccessor(obj, Nan::New("length").ToLocalChecked(),
-                   FLAC__StreamMetadata_length);
+  obj = Nan::NewInstance(Nan::New(StreamMetadataTemplatePersistent))
+            .ToLocalChecked();
 
   Local<Object> ptr = Nan::NewBuffer((char*)i, 0,
                                      [](char* i, void* data) {
@@ -291,7 +329,6 @@ void StructToJs(FLAC__StreamMetadata* i, Local<Object>& obj) {
                                      },
                                      i)
                           .ToLocalChecked();
-
   Nan::Set(obj, Nan::New("_ptr").ToLocalChecked(), ptr);
 }
 
