@@ -1,13 +1,13 @@
 var flac = require('../lib')
 
 function main() {
-  for (let i = 0; i < 10000; i++) {
+  for (let i = 0; i < 1000; i++) {
     let it = flac.metadata.new_sync()
     flac.metadata.init_sync(
       it,
       '/Users/2dxgujun/Desktop/audio.flac',
-      false,
-      false
+      true,
+      true
     )
     let index = 0
     do {
@@ -26,8 +26,20 @@ function main() {
         flac.format.MetadataType['PICTURE']
       ) {
         let data = flac.metadata.get_block_sync(it)
-        //flac.metadata_object.delete_sync(data)
-        //console.log(data)
+        let obj = flac.metadata_object.new_sync(
+          flac.format.MetadataType['PICTURE']
+        )
+        flac.metadata_object
+          .picture_set_mime_type(obj, 'audio/flac')
+          .then(r => {
+            return flac.metadata_object.picture_set_data(obj, Buffer.alloc(5))
+          })
+          .then(() => {
+            return flac.metadata_object.picture_is_legal(obj)
+          })
+          .catch(err => {
+            console.error(err)
+          })
       }
     } while (flac.metadata.next_sync(it))
 
@@ -36,11 +48,6 @@ function main() {
   }
 }
 
-gc()
-setTimeout(() => {
-  console.log('Started')
-  main()
-  console.log('Finished')
-}, 5000)
+main()
 
-setTimeout(() => {}, 100000)
+setTimeout(() => {}, 10000)

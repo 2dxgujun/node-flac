@@ -102,10 +102,10 @@ template <typename Ret, typename... Args>
 class BindingWorker : public Nan::AsyncWorker {
   public:
   BindingWorker(Nan::Callback* callback,
-                Ret (*func)(BindingWorker<Ret, Args...>* worker, Args...),
+                std::function<Ret (BindingWorker<Ret, Args...>* worker, Args...)> func,
                 Args... args)
       : Nan::AsyncWorker(callback),
-        func([=]() { return func(this, args...); }) {}
+        func(std::bind(func, this, args...)) {}
 
   void Execute() { ret = func(); }
 
@@ -129,9 +129,9 @@ template <typename... Args>
 class BindingWorker<void, Args...> : public Nan::AsyncWorker {
   public:
   BindingWorker(Nan::Callback* callback,
-                void (*func)(BindingWorker<void, Args...>* worker, Args...),
+                std::function<void (BindingWorker<void, Args...>* worker, Args...)> func,
                 Args... args)
-      : Nan::AsyncWorker(callback), func([=]() { func(this, args...); }) {}
+      : Nan::AsyncWorker(callback), func(std::bind(func, this, args...)) {}
 
   void Execute() { func(); }
 

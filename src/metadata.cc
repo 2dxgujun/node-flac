@@ -94,22 +94,24 @@ NAN_ASYNC_METHOD(__FLAC__metadata_simple_iterator_init) {
   NEW_CALLBACK(cb)
   FLAC__Metadata_SimpleIterator* it =
       UnwrapPtr<FLAC__Metadata_SimpleIterator>(info[0]);
-  Nan::Utf8String filename(info[1]);
+  Nan::Utf8String* filename = new Nan::Utf8String(info[1]);
   FLAC__bool read_only = Nan::To<int>(info[2]).FromMaybe(0);
   FLAC__bool preserve_file_stats = Nan::To<int>(info[3]).FromMaybe(0);
-  Nan::AsyncQueueWorker(new BindingWorker<void, FLAC__Metadata_SimpleIterator*,
-                                          const char*, FLAC__bool, FLAC__bool>(
-      cb,
-      [](BindingWorker<void, FLAC__Metadata_SimpleIterator*, const char*,
-                       FLAC__bool, FLAC__bool>* worker,
-         FLAC__Metadata_SimpleIterator* it, const char* filename,
-         FLAC__bool read_only, FLAC__bool preserve_file_stats) {
-        if (!FLAC__metadata_simple_iterator_init(it, filename, read_only,
-                                                 preserve_file_stats)) {
-          CHECK_ITERATOR_STATUS(it)
-        }
-      },
-      it, *filename, read_only, preserve_file_stats));
+  Nan::AsyncQueueWorker(
+      new BindingWorker<void, FLAC__Metadata_SimpleIterator*, Nan::Utf8String*,
+                        FLAC__bool, FLAC__bool>(
+          cb,
+          [](BindingWorker<void, FLAC__Metadata_SimpleIterator*,
+                           Nan::Utf8String*, FLAC__bool, FLAC__bool>* worker,
+             FLAC__Metadata_SimpleIterator* it, Nan::Utf8String* filename,
+             FLAC__bool read_only, FLAC__bool preserve_file_stats) {
+            if (!FLAC__metadata_simple_iterator_init(it, **filename, read_only,
+                                                     preserve_file_stats)) {
+              CHECK_ITERATOR_STATUS(it)
+            }
+            delete filename;
+          },
+          it, filename, read_only, preserve_file_stats));
 }
 
 NAN_METHOD(__FLAC__metadata_simple_iterator_is_writable) {

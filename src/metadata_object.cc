@@ -57,16 +57,19 @@ NAN_METHOD(__FLAC__metadata_object_picture_set_mime_type) {
 NAN_ASYNC_METHOD(__FLAC__metadata_object_picture_set_mime_type) {
   NEW_CALLBACK(cb)
   FLAC__StreamMetadata* m = fromjs<FLAC__StreamMetadata>(info[0]);
-  Nan::Utf8String mime_type(info[1]);
-  Nan::AsyncQueueWorker(new BindingWorker<void, FLAC__StreamMetadata*, char*>(
+  Nan::Utf8String* mime_type = new Nan::Utf8String(info[1]);
+  Nan::AsyncQueueWorker(new BindingWorker<void, FLAC__StreamMetadata*,
+                                          Nan::Utf8String*>(
       cb,
-      [](BindingWorker<void, FLAC__StreamMetadata*, char*>* worker,
-         FLAC__StreamMetadata* m, char* mime_type) {
-        if (!FLAC__metadata_object_picture_set_mime_type(m, mime_type, true)) {
+      [](BindingWorker<void, FLAC__StreamMetadata*, Nan::Utf8String*>* worker,
+         FLAC__StreamMetadata* m, Nan::Utf8String* mime_type) {
+        if (!FLAC__metadata_object_picture_set_mime_type(m, **mime_type,
+                                                         true)) {
           worker->SetErrorMessage("Failed set mime_type to metadata object");
         }
+        delete mime_type;
       },
-      m, *mime_type));
+      m, mime_type));
 }
 
 NAN_METHOD(__FLAC__metadata_object_picture_set_description) {
@@ -81,19 +84,19 @@ NAN_METHOD(__FLAC__metadata_object_picture_set_description) {
 NAN_ASYNC_METHOD(__FLAC__metadata_object_picture_set_description) {
   NEW_CALLBACK(cb)
   FLAC__StreamMetadata* m = fromjs<FLAC__StreamMetadata>(info[0]);
-  Nan::Utf8String description(info[1]);
-  Nan::AsyncQueueWorker(
-      new BindingWorker<void, FLAC__StreamMetadata*, FLAC__byte*>(
-          cb,
-          [](BindingWorker<void, FLAC__StreamMetadata*, FLAC__byte*>* worker,
-             FLAC__StreamMetadata* m, FLAC__byte* description) {
-            if (!FLAC__metadata_object_picture_set_description(m, description,
-                                                               true)) {
-              worker->SetErrorMessage(
-                  "Failed set description to metadata object");
-            }
-          },
-          m, (FLAC__byte*)*description));
+  Nan::Utf8String* description = new Nan::Utf8String(info[1]);
+  Nan::AsyncQueueWorker(new BindingWorker<void, FLAC__StreamMetadata*,
+                                          Nan::Utf8String*>(
+      cb,
+      [](BindingWorker<void, FLAC__StreamMetadata*, Nan::Utf8String*>* worker,
+         FLAC__StreamMetadata* m, Nan::Utf8String* description) {
+        if (!FLAC__metadata_object_picture_set_description(
+                m, (FLAC__byte*)**description, true)) {
+          worker->SetErrorMessage("Failed set description to metadata object");
+        }
+        delete description;
+      },
+      m, description));
 }
 
 NAN_METHOD(__FLAC__metadata_object_picture_set_data) {
