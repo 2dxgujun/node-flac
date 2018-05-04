@@ -1,10 +1,11 @@
 {
   "name": "node-flac",
   "version": "1.0.0",
-  "description": "Wrapper around libFLAC",
+  "description": "libFLAC bindings to node.js",
   "main": "lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install": "node-gyp rebuild"
   },
   "author": "Jun Gu <2dxgujun@gmail.com>",
   "license": "ISC",
