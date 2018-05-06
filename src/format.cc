@@ -23,13 +23,76 @@ NAN_GETTER(FLAC__StreamMetadata_length) {
 template <>
 void StructToJs(FLAC__StreamMetadata_Picture*, Local<Object>&);
 
+template <>
+void StructToJs(FLAC__StreamMetadata_StreamInfo*, Local<Object>&);
+
 NAN_GETTER(FLAC__StreamMetadata_data) {
   FLAC__StreamMetadata* m = getPointer<FLAC__StreamMetadata>(info.This());
   Local<Object> obj = Nan::New<Object>();
-  if (m->type == FLAC__METADATA_TYPE_PICTURE) {
+  if (m->type == FLAC__METADATA_TYPE_STREAMINFO) {
+    StructToJs(&m->data.stream_info, obj);
+  } else if (m->type == FLAC__METADATA_TYPE_PICTURE) {
     StructToJs(&m->data.picture, obj);
   }
   info.GetReturnValue().Set(obj);
+}
+
+NAN_GETTER(FLAC__StreamMetadata_StreamInfo_min_blocksize) {
+  FLAC__StreamMetadata_StreamInfo* i =
+    getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
+  info.GetReturnValue().Set(Nan::New((uint32_t)i->min_blocksize));
+}
+
+NAN_GETTER(FLAC__StreamMetadata_StreamInfo_max_blocksize) {
+  FLAC__StreamMetadata_StreamInfo* i =
+    getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
+  info.GetReturnValue().Set(Nan::New((uint32_t)i->max_blocksize));
+}
+
+NAN_GETTER(FLAC__StreamMetadata_StreamInfo_min_framesize) {
+  FLAC__StreamMetadata_StreamInfo* i =
+    getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
+  info.GetReturnValue().Set(Nan::New((uint32_t)i->min_framesize));
+}
+
+NAN_GETTER(FLAC__StreamMetadata_StreamInfo_max_framesize) {
+  FLAC__StreamMetadata_StreamInfo* i =
+    getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
+  info.GetReturnValue().Set(Nan::New((uint32_t)i->max_framesize));
+}
+
+NAN_GETTER(FLAC__StreamMetadata_StreamInfo_sample_rate) {
+  FLAC__StreamMetadata_StreamInfo* i =
+    getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
+  info.GetReturnValue().Set(Nan::New((uint32_t)i->sample_rate));
+}
+
+NAN_GETTER(FLAC__StreamMetadata_StreamInfo_channels) {
+  FLAC__StreamMetadata_StreamInfo* i =
+    getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
+  info.GetReturnValue().Set(Nan::New((uint32_t)i->channels));
+}
+
+NAN_GETTER(FLAC__StreamMetadata_StreamInfo_bits_per_sample) {
+  FLAC__StreamMetadata_StreamInfo* i =
+    getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
+  info.GetReturnValue().Set(Nan::New((uint32_t)i->bits_per_sample));
+}
+
+NAN_GETTER(FLAC__StreamMetadata_StreamInfo_total_samples) {
+  FLAC__StreamMetadata_StreamInfo* i =
+    getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
+  info.GetReturnValue().Set(Nan::New<Number>((uint64_t)i->total_samples));
+}
+
+NAN_GETTER(FLAC__StreamMetadata_StreamInfo_md5sum) {
+  FLAC__StreamMetadata_StreamInfo* i =
+    getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
+  Local<Array> md5sum = Nan::New<Array>(16);
+  for (int j = 0; j < 16; j++) {
+    Nan::Set(md5sum, j, Nan::New(i->md5sum[j]));
+  }
+  info.GetReturnValue().Set(md5sum);
 }
 
 NAN_GETTER(FLAC__StreamMetadata_Picture_type) {
@@ -265,6 +328,39 @@ Local<Value> StructToJs(FLAC__bool i) {
   } else {
     return scope.Escape(Nan::False());
   }
+}
+
+static Nan::Persistent<ObjectTemplate> StreamMetadata_StreamInfoTemplatePersistent;
+
+template <>
+void StructToJs(FLAC__StreamMetadata_StreamInfo* i, Local<Object>& obj) {
+  if (StreamMetadata_StreamInfoTemplatePersistent.IsEmpty()) {
+    Local<ObjectTemplate> otpl = Nan::New<ObjectTemplate>();
+    Nan::SetAccessor(otpl, Nan::New("min_blocksize").ToLocalChecked(),
+        FLAC__StreamMetadata_StreamInfo_min_blocksize);
+    Nan::SetAccessor(otpl, Nan::New("max_blocksize").ToLocalChecked(),
+        FLAC__StreamMetadata_StreamInfo_max_blocksize);
+    Nan::SetAccessor(otpl, Nan::New("min_framesize").ToLocalChecked(),
+        FLAC__StreamMetadata_StreamInfo_min_framesize);
+    Nan::SetAccessor(otpl, Nan::New("max_framesize").ToLocalChecked(),
+        FLAC__StreamMetadata_StreamInfo_max_framesize);
+    Nan::SetAccessor(otpl, Nan::New("sample_rate").ToLocalChecked(),
+        FLAC__StreamMetadata_StreamInfo_sample_rate);
+    Nan::SetAccessor(otpl, Nan::New("channels").ToLocalChecked(),
+        FLAC__StreamMetadata_StreamInfo_channels);
+    Nan::SetAccessor(otpl, Nan::New("bits_per_sample").ToLocalChecked(),
+        FLAC__StreamMetadata_StreamInfo_bits_per_sample);
+    Nan::SetAccessor(otpl, Nan::New("total_samples").ToLocalChecked(),
+        FLAC__StreamMetadata_StreamInfo_total_samples);
+    Nan::SetAccessor(otpl, Nan::New("md5sum").ToLocalChecked(),
+        FLAC__StreamMetadata_StreamInfo_md5sum);
+    StreamMetadata_StreamInfoTemplatePersistent.Reset(otpl);
+  }
+  obj = Nan::NewInstance(Nan::New(StreamMetadata_StreamInfoTemplatePersistent))
+            .ToLocalChecked();
+
+  Local<Object> ptr = WrapPtr(i).ToLocalChecked();
+  Nan::Set(obj, Nan::New("_ptr").ToLocalChecked(), ptr);
 }
 
 static Nan::Persistent<ObjectTemplate> StreamMetadata_PictureTemplatePersistent;
