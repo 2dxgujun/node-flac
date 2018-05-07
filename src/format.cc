@@ -104,7 +104,7 @@ NAN_GETTER(FLAC__StreamMetadata_Picture_type) {
 NAN_SETTER(FLAC__StreamMetadata_Picture_type) {
   FLAC__StreamMetadata_Picture* i =
       getPointer<FLAC__StreamMetadata_Picture>(info.This());
-  MaybeLocal<Number> v = Nan::To<Number>(info.Data());
+  MaybeLocal<Number> v = Nan::To<Number>(value);
   if (v.IsEmpty()) {
     Nan::ThrowError("Invalid value: Has to be a Number");
   }
@@ -134,7 +134,7 @@ NAN_GETTER(FLAC__StreamMetadata_Picture_width) {
 NAN_SETTER(FLAC__StreamMetadata_Picture_width) {
   FLAC__StreamMetadata_Picture* i =
       getPointer<FLAC__StreamMetadata_Picture>(info.This());
-  MaybeLocal<Number> v = Nan::To<Number>(info.Data());
+  MaybeLocal<Number> v = Nan::To<Number>(value);
   if (v.IsEmpty()) {
     Nan::ThrowError("Invalid value: Has to be a Number");
   }
@@ -150,7 +150,7 @@ NAN_GETTER(FLAC__StreamMetadata_Picture_height) {
 NAN_SETTER(FLAC__StreamMetadata_Picture_height) {
   FLAC__StreamMetadata_Picture* i =
       getPointer<FLAC__StreamMetadata_Picture>(info.This());
-  MaybeLocal<Number> v = Nan::To<Number>(info.Data());
+  MaybeLocal<Number> v = Nan::To<Number>(value);
   if (v.IsEmpty()) {
     Nan::ThrowError("Invalid value: Has to be a Number");
   }
@@ -166,7 +166,7 @@ NAN_GETTER(FLAC__StreamMetadata_Picture_depth) {
 NAN_SETTER(FLAC__StreamMetadata_Picture_depth) {
   FLAC__StreamMetadata_Picture* i =
       getPointer<FLAC__StreamMetadata_Picture>(info.This());
-  MaybeLocal<Number> v = Nan::To<Number>(info.Data());
+  MaybeLocal<Number> v = Nan::To<Number>(value);
   if (v.IsEmpty()) {
     Nan::ThrowError("Invalid value: Has to be a Number");
   }
@@ -182,7 +182,7 @@ NAN_GETTER(FLAC__StreamMetadata_Picture_colors) {
 NAN_SETTER(FLAC__StreamMetadata_Picture_colors) {
   FLAC__StreamMetadata_Picture* i =
       getPointer<FLAC__StreamMetadata_Picture>(info.This());
-  MaybeLocal<Number> v = Nan::To<Number>(info.Data());
+  MaybeLocal<Number> v = Nan::To<Number>(value);
   if (v.IsEmpty()) {
     Nan::ThrowError("Invalid value: Has to be a Number");
   }
