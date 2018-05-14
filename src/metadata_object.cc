@@ -155,6 +155,33 @@ NAN_ASYNC_METHOD(__FLAC__metadata_object_picture_is_legal) {
           object, violation));
 }
 
+NAN_METHOD(__FLAC__metadata_object_vorbiscomment_remove_entries_matching) {
+  FLAC__StreamMetadata* m = fromjs<FLAC__StreamMetadata>(info[0]);
+  if (m == nullptr) return;
+  Nan::Utf8String field_name(info[1]);
+  int r = FLAC__metadata_object_vorbiscomment_remove_entries_matching(
+      m, *field_name);
+  info.GetReturnValue().Set(Nan::New<Number>(r));
+}
+
+NAN_ASYNC_METHOD(
+    __FLAC__metadata_object_vorbiscomment_remove_entries_matching) {
+  NEW_CALLBACK(cb)
+  FLAC__StreamMetadata* m = fromjs<FLAC__StreamMetadata>(info[0]);
+  Nan::Utf8String* field_name = new Nan::Utf8String(info[1]);
+  Nan::AsyncQueueWorker(new BindingWorker<int, FLAC__StreamMetadata*,
+                                          Nan::Utf8String*>(
+      cb,
+      [](BindingWorker<int, FLAC__StreamMetadata*, Nan::Utf8String*>* worker,
+         Nan::Utf8String* field_name) {
+        int num = FLAC__metadata_object_vorbiscomment_remove_entries_matching(
+            m, **field_name);
+        delete field_name;
+        return num;
+      },
+      m, field_name))
+}
+
 NAN_MODULE_INIT(init_metadata_object) {
   Local<Object> obj = Nan::New<Object>();
 
@@ -166,6 +193,8 @@ NAN_MODULE_INIT(init_metadata_object) {
              __FLAC__metadata_object_picture_set_description)
   SET_METHOD(picture_set_data, __FLAC__metadata_object_picture_set_data)
   SET_METHOD(picture_is_legal, __FLAC__metadata_object_picture_is_legal)
+  SET_METHOD(vorbisecomment_remove_entries_matching,
+             __FLAC__metadata_object_vorbiscomment_remove_entries_matching)
 
   Nan::Set(target, Nan::New("metadata_object").ToLocalChecked(), obj);
 }

@@ -195,6 +195,12 @@ NAN_GETTER(FLAC__StreamMetadata_Picture_data) {
   info.GetReturnValue().Set(WrapPtr(i->data, i->data_length).ToLocalChecked());
 }
 
+NAN_GETTER(FLAC__StreamMetadata_VorbisComment_vendor_string) {
+  FLAC__StreamMetadata_VorbisComment* i = 
+    getPointer<FLAC__StreamMetadata_VorbisComment>(info.This());
+  info.GetReturnValue().Set(Nan::New());
+}
+
 NAN_PROPERTY_GETTER(MetadataType) {
   Nan::Utf8String p(property);
   std::string PropertyName(*p);
@@ -393,6 +399,27 @@ void StructToJs(FLAC__StreamMetadata_Picture* i, Local<Object>& obj) {
     StreamMetadata_PictureTemplatePersistent.Reset(otpl);
   }
   obj = Nan::NewInstance(Nan::New(StreamMetadata_PictureTemplatePersistent))
+            .ToLocalChecked();
+
+  Local<Object> ptr = WrapPtr(i).ToLocalChecked();
+  Nan::Set(obj, Nan::New("_ptr").ToLocalChecked(), ptr);
+}
+
+static Nan::Persistent<ObjectTemplate> StreamMetadata_VorbisCommentTemplatePersistent;
+
+template <>
+void StructToJs(FLAC__StreamMetadata_VorbisComment* i, Local<Object>& obj) {
+  if (StreamMetadata_VorbisCommentTemplatePersistent.IsEmpty()) {
+    Local<ObjectTemplate> otpl = Nan::New<ObjectTemplate>();
+    Nan::SetAccessor(otpl, Nan::New("vendor_string").ToLocalChecked(),
+        FLAC__StreamMetadata_VorbisComment_vendor_string);
+    Nan::SetAccessor(otpl, Nan::New("num_comments").ToLocalChecked(),
+        FLAC__StreamMetadata_VorbisComment_num_comments);
+    Nan::SetAccessor(otpl, Nan::New("comments").ToLocalChecked(),
+        FLAC__StreamMetadata_VorbisComment_comments);
+    StreamMetadata_VorbisCommentTemplatePersistent.Reset(otpl);
+  }
+  obj = Nan::NewInstance(Nan::New(StreamMetadata_VorbisCommentTemplatePersistent))
             .ToLocalChecked();
 
   Local<Object> ptr = WrapPtr(i).ToLocalChecked();
