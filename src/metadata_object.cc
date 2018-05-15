@@ -133,7 +133,7 @@ NAN_METHOD(__FLAC__metadata_object_picture_is_legal) {
   const char* n;
   FLAC__bool r = FLAC__metadata_object_picture_is_legal(m, &n);
   if (!r) {
-    info.GetReturnValue().Set(Nan::New(n).ToLocalChecked());
+    Nan::ThrowError(n);
   } else {
     info.GetReturnValue().Set(Nan::New<Boolean>(r));
   }
@@ -173,13 +173,92 @@ NAN_ASYNC_METHOD(
                                           Nan::Utf8String*>(
       cb,
       [](BindingWorker<int, FLAC__StreamMetadata*, Nan::Utf8String*>* worker,
-        FLAC__StreamMetadata* m, Nan::Utf8String* field_name) {
+         FLAC__StreamMetadata* m, Nan::Utf8String* field_name) {
         int num = FLAC__metadata_object_vorbiscomment_remove_entries_matching(
             m, **field_name);
         delete field_name;
         return num;
       },
       m, field_name));
+}
+
+NAN_METHOD(__FLAC__metadata_object_vorbiscomment_entry_from_name_value_pair) {
+  Nan::Utf8String field_name(info[0]);
+  Nan::Utf8String field_value(info[1]);
+  FLAC__StreamMetadata_VorbisComment_Entry* entry =
+      new FLAC__StreamMetadata_VorbisComment_Entry();
+  FLAC__bool r = FLAC__metadata_object_vorbiscomment_entry_from_name_value_pair(
+      entry, *field_name, *field_value);
+  if (r) {
+    info.GetReturnValue().Set(StructToJs(entry));
+  } else {
+    Nan::ThrowError("Failed to create entry from name value pair");
+  }
+}
+
+NAN_ASYNC_METHOD(
+    __FLAC__metadata_object_vorbiscomment_entry_from_name_value_pair) {
+  NEW_CALLBACK(cb)
+  Nan::Utf8String* field_name = new Nan::Utf8String(info[0]);
+  Nan::Utf8String* field_value = new Nan::Utf8String(info[1]);
+  Nan::AsyncQueueWorker(
+      new BindingWorker<FLAC__StreamMetadata_VorbisComment_Entry*,
+                        Nan::Utf8String*, Nan::Utf8String*>(
+          cb,
+          [](BindingWorker<FLAC__StreamMetadata_VorbisComment_Entry*,
+                           Nan::Utf8String*, Nan::Utf8String*>* worker,
+             Nan::Utf8String* field_name, Nan::Utf8String* field_value)
+              -> FLAC__StreamMetadata_VorbisComment_Entry* {
+            FLAC__StreamMetadata_VorbisComment_Entry* entry =
+                new FLAC__StreamMetadata_VorbisComment_Entry();
+            FLAC__bool r =
+                FLAC__metadata_object_vorbiscomment_entry_from_name_value_pair(
+                    entry, **field_name, **field_value);
+            delete field_name;
+            delete field_value;
+            if (r) {
+              return entry;
+            } else {
+              worker->SetErrorMessage(
+                  "Failed to create entry from name value pair");
+              return nullptr;
+            }
+          },
+          field_name, field_value));
+}
+
+NAN_METHOD(__FLAC__metadata_object_vorbiscomment_append_comment) {
+  FLAC__StreamMetadata* m = fromjs<FLAC__StreamMetadata>(info[0]);
+  if (m == nullptr) return;
+  FLAC__StreamMetadata_VorbisComment_Entry* entry =
+      fromjs<FLAC__StreamMetadata_VorbisComment_Entry>(info[1]);
+  if (entry == nullptr) return;
+  FLAC__bool r =
+      FLAC__metadata_object_vorbiscomment_append_comment(m, *entry, true);
+  info.GetReturnValue().Set(Nan::New<Boolean>(r));
+}
+
+NAN_ASYNC_METHOD(__FLAC__metadata_object_vorbiscomment_append_comment) {
+  NEW_CALLBACK(cb)
+  FLAC__StreamMetadata* m = fromjs<FLAC__StreamMetadata>(info[0]);
+  if (m == nullptr) return;
+  FLAC__StreamMetadata_VorbisComment_Entry* entry =
+      fromjs<FLAC__StreamMetadata_VorbisComment_Entry>(info[1]);
+  if (entry == nullptr) return;
+  Nan::AsyncQueueWorker(
+      new BindingWorker<void, FLAC__StreamMetadata*,
+                        FLAC__StreamMetadata_VorbisComment_Entry*>(
+          cb,
+          [](BindingWorker<void, FLAC__StreamMetadata*,
+                           FLAC__StreamMetadata_VorbisComment_Entry*>* worker,
+             FLAC__StreamMetadata* m,
+             FLAC__StreamMetadata_VorbisComment_Entry* entry) {
+            if (!FLAC__metadata_object_vorbiscomment_append_comment(m, *entry,
+                                                                    true)) {
+              worker->SetErrorMessage("Failed to append comment");
+            }
+          },
+          m, entry));
 }
 
 NAN_MODULE_INIT(init_metadata_object) {
@@ -195,6 +274,10 @@ NAN_MODULE_INIT(init_metadata_object) {
   SET_METHOD(picture_is_legal, __FLAC__metadata_object_picture_is_legal)
   SET_METHOD(vorbiscomment_remove_entries_matching,
              __FLAC__metadata_object_vorbiscomment_remove_entries_matching)
+  SET_METHOD(vorbiscomment_entry_from_name_value_pair,
+             __FLAC__metadata_object_vorbiscomment_entry_from_name_value_pair)
+  SET_METHOD(vorbiscomment_append_comment,
+             __FLAC__metadata_object_vorbiscomment_append_comment)
 
   Nan::Set(target, Nan::New("metadata_object").ToLocalChecked(), obj);
 }

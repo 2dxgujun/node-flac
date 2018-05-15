@@ -44,55 +44,55 @@ NAN_GETTER(FLAC__StreamMetadata_data) {
 
 NAN_GETTER(FLAC__StreamMetadata_StreamInfo_min_blocksize) {
   FLAC__StreamMetadata_StreamInfo* i =
-    getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
+      getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
   info.GetReturnValue().Set(Nan::New((uint32_t)i->min_blocksize));
 }
 
 NAN_GETTER(FLAC__StreamMetadata_StreamInfo_max_blocksize) {
   FLAC__StreamMetadata_StreamInfo* i =
-    getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
+      getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
   info.GetReturnValue().Set(Nan::New((uint32_t)i->max_blocksize));
 }
 
 NAN_GETTER(FLAC__StreamMetadata_StreamInfo_min_framesize) {
   FLAC__StreamMetadata_StreamInfo* i =
-    getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
+      getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
   info.GetReturnValue().Set(Nan::New((uint32_t)i->min_framesize));
 }
 
 NAN_GETTER(FLAC__StreamMetadata_StreamInfo_max_framesize) {
   FLAC__StreamMetadata_StreamInfo* i =
-    getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
+      getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
   info.GetReturnValue().Set(Nan::New((uint32_t)i->max_framesize));
 }
 
 NAN_GETTER(FLAC__StreamMetadata_StreamInfo_sample_rate) {
   FLAC__StreamMetadata_StreamInfo* i =
-    getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
+      getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
   info.GetReturnValue().Set(Nan::New((uint32_t)i->sample_rate));
 }
 
 NAN_GETTER(FLAC__StreamMetadata_StreamInfo_channels) {
   FLAC__StreamMetadata_StreamInfo* i =
-    getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
+      getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
   info.GetReturnValue().Set(Nan::New((uint32_t)i->channels));
 }
 
 NAN_GETTER(FLAC__StreamMetadata_StreamInfo_bits_per_sample) {
   FLAC__StreamMetadata_StreamInfo* i =
-    getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
+      getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
   info.GetReturnValue().Set(Nan::New((uint32_t)i->bits_per_sample));
 }
 
 NAN_GETTER(FLAC__StreamMetadata_StreamInfo_total_samples) {
   FLAC__StreamMetadata_StreamInfo* i =
-    getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
+      getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
   info.GetReturnValue().Set(Nan::New<Number>((uint64_t)i->total_samples));
 }
 
 NAN_GETTER(FLAC__StreamMetadata_StreamInfo_md5sum) {
   FLAC__StreamMetadata_StreamInfo* i =
-    getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
+      getPointer<FLAC__StreamMetadata_StreamInfo>(info.This());
   Local<Array> md5sum = Nan::New<Array>(16);
   for (int j = 0; j < 16; j++) {
     Nan::Set(md5sum, j, Nan::New(i->md5sum[j]));
@@ -201,25 +201,38 @@ NAN_GETTER(FLAC__StreamMetadata_Picture_data) {
 }
 
 NAN_GETTER(FLAC__StreamMetadata_VorbisComment_vendor_string) {
-  FLAC__StreamMetadata_VorbisComment* i = 
-    getPointer<FLAC__StreamMetadata_VorbisComment>(info.This());
-  info.GetReturnValue().Set(Nan::New((char*) i->vendor_string.entry).ToLocalChecked());
+  FLAC__StreamMetadata_VorbisComment* i =
+      getPointer<FLAC__StreamMetadata_VorbisComment>(info.This());
+  info.GetReturnValue().Set(
+      Nan::New((char*)i->vendor_string.entry).ToLocalChecked());
 }
 
 NAN_GETTER(FLAC__StreamMetadata_VorbisComment_num_comments) {
   FLAC__StreamMetadata_VorbisComment* i =
-    getPointer<FLAC__StreamMetadata_VorbisComment>(info.This());
+      getPointer<FLAC__StreamMetadata_VorbisComment>(info.This());
   info.GetReturnValue().Set(Nan::New(i->num_comments));
 }
 
 NAN_GETTER(FLAC__StreamMetadata_VorbisComment_comments) {
   FLAC__StreamMetadata_VorbisComment* i =
-    getPointer<FLAC__StreamMetadata_VorbisComment>(info.This());
+      getPointer<FLAC__StreamMetadata_VorbisComment>(info.This());
   Local<Array> arr = Nan::New<Array>();
   for (uint32_t j = 0; j < i->num_comments; j++) {
-    Nan::Set(arr, j, Nan::New((char*) i->comments[j].entry).ToLocalChecked());
+    Nan::Set(arr, j, Nan::New((char*)i->comments[j].entry).ToLocalChecked());
   }
   info.GetReturnValue().Set(arr);
+}
+
+NAN_GETTER(FLAC__StreamMetadata_VorbisComment_Entry_length) {
+  FLAC__StreamMetadata_VorbisComment_Entry* i =
+      getPointer<FLAC__StreamMetadata_VorbisComment_Entry>(info.This());
+  info.GetReturnValue().Set(Nan::New(i->length));
+}
+
+NAN_GETTER(FLAC__StreamMetadata_VorbisComment_Entry_entry) {
+  FLAC__StreamMetadata_VorbisComment_Entry* i =
+      getPointer<FLAC__StreamMetadata_VorbisComment_Entry>(info.This());
+  info.GetReturnValue().Set(Nan::New((char*)i->entry).ToLocalChecked());
 }
 
 NAN_PROPERTY_GETTER(MetadataType) {
@@ -357,30 +370,31 @@ Local<Value> StructToJs(FLAC__bool i) {
   }
 }
 
-static Nan::Persistent<ObjectTemplate> StreamMetadata_StreamInfoTemplatePersistent;
+static Nan::Persistent<ObjectTemplate>
+    StreamMetadata_StreamInfoTemplatePersistent;
 
 template <>
 void StructToJs(FLAC__StreamMetadata_StreamInfo* i, Local<Object>& obj) {
   if (StreamMetadata_StreamInfoTemplatePersistent.IsEmpty()) {
     Local<ObjectTemplate> otpl = Nan::New<ObjectTemplate>();
     Nan::SetAccessor(otpl, Nan::New("min_blocksize").ToLocalChecked(),
-        FLAC__StreamMetadata_StreamInfo_min_blocksize);
+                     FLAC__StreamMetadata_StreamInfo_min_blocksize);
     Nan::SetAccessor(otpl, Nan::New("max_blocksize").ToLocalChecked(),
-        FLAC__StreamMetadata_StreamInfo_max_blocksize);
+                     FLAC__StreamMetadata_StreamInfo_max_blocksize);
     Nan::SetAccessor(otpl, Nan::New("min_framesize").ToLocalChecked(),
-        FLAC__StreamMetadata_StreamInfo_min_framesize);
+                     FLAC__StreamMetadata_StreamInfo_min_framesize);
     Nan::SetAccessor(otpl, Nan::New("max_framesize").ToLocalChecked(),
-        FLAC__StreamMetadata_StreamInfo_max_framesize);
+                     FLAC__StreamMetadata_StreamInfo_max_framesize);
     Nan::SetAccessor(otpl, Nan::New("sample_rate").ToLocalChecked(),
-        FLAC__StreamMetadata_StreamInfo_sample_rate);
+                     FLAC__StreamMetadata_StreamInfo_sample_rate);
     Nan::SetAccessor(otpl, Nan::New("channels").ToLocalChecked(),
-        FLAC__StreamMetadata_StreamInfo_channels);
+                     FLAC__StreamMetadata_StreamInfo_channels);
     Nan::SetAccessor(otpl, Nan::New("bits_per_sample").ToLocalChecked(),
-        FLAC__StreamMetadata_StreamInfo_bits_per_sample);
+                     FLAC__StreamMetadata_StreamInfo_bits_per_sample);
     Nan::SetAccessor(otpl, Nan::New("total_samples").ToLocalChecked(),
-        FLAC__StreamMetadata_StreamInfo_total_samples);
+                     FLAC__StreamMetadata_StreamInfo_total_samples);
     Nan::SetAccessor(otpl, Nan::New("md5sum").ToLocalChecked(),
-        FLAC__StreamMetadata_StreamInfo_md5sum);
+                     FLAC__StreamMetadata_StreamInfo_md5sum);
     StreamMetadata_StreamInfoTemplatePersistent.Reset(otpl);
   }
   obj = Nan::NewInstance(Nan::New(StreamMetadata_StreamInfoTemplatePersistent))
@@ -426,24 +440,57 @@ void StructToJs(FLAC__StreamMetadata_Picture* i, Local<Object>& obj) {
   Nan::Set(obj, Nan::New("_ptr").ToLocalChecked(), ptr);
 }
 
-static Nan::Persistent<ObjectTemplate> StreamMetadata_VorbisCommentTemplatePersistent;
+static Nan::Persistent<ObjectTemplate>
+    StreamMetadata_VorbisCommentTemplatePersistent;
 
 template <>
 void StructToJs(FLAC__StreamMetadata_VorbisComment* i, Local<Object>& obj) {
   if (StreamMetadata_VorbisCommentTemplatePersistent.IsEmpty()) {
     Local<ObjectTemplate> otpl = Nan::New<ObjectTemplate>();
     Nan::SetAccessor(otpl, Nan::New("vendor_string").ToLocalChecked(),
-        FLAC__StreamMetadata_VorbisComment_vendor_string);
+                     FLAC__StreamMetadata_VorbisComment_vendor_string);
     Nan::SetAccessor(otpl, Nan::New("num_comments").ToLocalChecked(),
-        FLAC__StreamMetadata_VorbisComment_num_comments);
+                     FLAC__StreamMetadata_VorbisComment_num_comments);
     Nan::SetAccessor(otpl, Nan::New("comments").ToLocalChecked(),
-        FLAC__StreamMetadata_VorbisComment_comments);
+                     FLAC__StreamMetadata_VorbisComment_comments);
     StreamMetadata_VorbisCommentTemplatePersistent.Reset(otpl);
   }
-  obj = Nan::NewInstance(Nan::New(StreamMetadata_VorbisCommentTemplatePersistent))
-            .ToLocalChecked();
+  obj =
+      Nan::NewInstance(Nan::New(StreamMetadata_VorbisCommentTemplatePersistent))
+          .ToLocalChecked();
 
   Local<Object> ptr = WrapPtr(i).ToLocalChecked();
+  Nan::Set(obj, Nan::New("_ptr").ToLocalChecked(), ptr);
+}
+
+static Nan::Persistent<ObjectTemplate>
+    StreamMetadata_VorbisComment_EntryTemplatePersistent;
+
+template <>
+void StructToJs(FLAC__StreamMetadata_VorbisComment_Entry* i,
+                Local<Object>& obj) {
+  if (StreamMetadata_VorbisComment_EntryTemplatePersistent.IsEmpty()) {
+    Local<ObjectTemplate> otpl = Nan::New<ObjectTemplate>();
+    Nan::SetAccessor(otpl, Nan::New("length").ToLocalChecked(),
+                     FLAC__StreamMetadata_VorbisComment_Entry_length);
+    Nan::SetAccessor(otpl, Nan::New("entry").ToLocalChecked(),
+                     FLAC__StreamMetadata_VorbisComment_Entry_entry);
+    StreamMetadata_VorbisComment_EntryTemplatePersistent.Reset(otpl);
+  }
+  obj = Nan::NewInstance(
+            Nan::New(StreamMetadata_VorbisComment_EntryTemplatePersistent))
+            .ToLocalChecked();
+
+  Local<Object> ptr =
+      Nan::NewBuffer((char*)i, 0,
+                     [](char* i, void* data) {
+                       FLAC__StreamMetadata_VorbisComment_Entry* entry =
+                           (FLAC__StreamMetadata_VorbisComment_Entry*)data;
+                       free(entry->entry);
+                       delete entry;
+                     },
+                     i)
+          .ToLocalChecked();
   Nan::Set(obj, Nan::New("_ptr").ToLocalChecked(), ptr);
 }
 
