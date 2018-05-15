@@ -5,7 +5,7 @@ function main() {
     let it = flac.metadata.new_sync()
     flac.metadata.init_sync(
       it,
-      '/Users/2dxgujun/Desktop/audio.flac',
+      '/home/jun/Music/WalkmanGo/music/1.flac',
       false,
       false
     )
@@ -23,12 +23,12 @@ function main() {
 
       if (
         flac.metadata.get_block_type_sync(it) ===
-        flac.format.MetadataType['PICTURE']
+        flac.format.MetadataType['VORBIS_COMMENT']
       ) {
         let obj = flac.metadata.get_block_sync(it)
         console.log(obj)
-        obj.data.type = 4
-        console.log(obj)
+        let num = flac.metadata_object.vorbiscomment_remove_entries_matching_sync(obj, 'ALBUM')
+        console.log(num)
         flac.metadata.set_block_sync(it, obj, false)
       }
     } while (flac.metadata.next_sync(it))

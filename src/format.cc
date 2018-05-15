@@ -26,6 +26,9 @@ void StructToJs(FLAC__StreamMetadata_Picture*, Local<Object>&);
 template <>
 void StructToJs(FLAC__StreamMetadata_StreamInfo*, Local<Object>&);
 
+template <>
+void StructToJs(FLAC__StreamMetadata_VorbisComment*, Local<Object>&);
+
 NAN_GETTER(FLAC__StreamMetadata_data) {
   FLAC__StreamMetadata* m = getPointer<FLAC__StreamMetadata>(info.This());
   Local<Object> obj = Nan::New<Object>();
@@ -33,6 +36,8 @@ NAN_GETTER(FLAC__StreamMetadata_data) {
     StructToJs(&m->data.stream_info, obj);
   } else if (m->type == FLAC__METADATA_TYPE_PICTURE) {
     StructToJs(&m->data.picture, obj);
+  } else if (m->type == FLAC__METADATA_TYPE_VORBIS_COMMENT) {
+    StructToJs(&m->data.vorbis_comment, obj);
   }
   info.GetReturnValue().Set(obj);
 }
@@ -198,7 +203,23 @@ NAN_GETTER(FLAC__StreamMetadata_Picture_data) {
 NAN_GETTER(FLAC__StreamMetadata_VorbisComment_vendor_string) {
   FLAC__StreamMetadata_VorbisComment* i = 
     getPointer<FLAC__StreamMetadata_VorbisComment>(info.This());
-  info.GetReturnValue().Set(Nan::New());
+  info.GetReturnValue().Set(Nan::New((char*) i->vendor_string.entry).ToLocalChecked());
+}
+
+NAN_GETTER(FLAC__StreamMetadata_VorbisComment_num_comments) {
+  FLAC__StreamMetadata_VorbisComment* i =
+    getPointer<FLAC__StreamMetadata_VorbisComment>(info.This());
+  info.GetReturnValue().Set(Nan::New(i->num_comments));
+}
+
+NAN_GETTER(FLAC__StreamMetadata_VorbisComment_comments) {
+  FLAC__StreamMetadata_VorbisComment* i =
+    getPointer<FLAC__StreamMetadata_VorbisComment>(info.This());
+  Local<Array> arr = Nan::New<Array>();
+  for (uint32_t j = 0; j < i->num_comments; j++) {
+    Nan::Set(arr, j, Nan::New((char*) i->comments[j].entry).ToLocalChecked());
+  }
+  info.GetReturnValue().Set(arr);
 }
 
 NAN_PROPERTY_GETTER(MetadataType) {

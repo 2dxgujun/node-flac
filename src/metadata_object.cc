@@ -173,13 +173,13 @@ NAN_ASYNC_METHOD(
                                           Nan::Utf8String*>(
       cb,
       [](BindingWorker<int, FLAC__StreamMetadata*, Nan::Utf8String*>* worker,
-         Nan::Utf8String* field_name) {
+        FLAC__StreamMetadata* m, Nan::Utf8String* field_name) {
         int num = FLAC__metadata_object_vorbiscomment_remove_entries_matching(
             m, **field_name);
         delete field_name;
         return num;
       },
-      m, field_name))
+      m, field_name));
 }
 
 NAN_MODULE_INIT(init_metadata_object) {
@@ -193,7 +193,7 @@ NAN_MODULE_INIT(init_metadata_object) {
              __FLAC__metadata_object_picture_set_description)
   SET_METHOD(picture_set_data, __FLAC__metadata_object_picture_set_data)
   SET_METHOD(picture_is_legal, __FLAC__metadata_object_picture_is_legal)
-  SET_METHOD(vorbisecomment_remove_entries_matching,
+  SET_METHOD(vorbiscomment_remove_entries_matching,
              __FLAC__metadata_object_vorbiscomment_remove_entries_matching)
 
   Nan::Set(target, Nan::New("metadata_object").ToLocalChecked(), obj);
