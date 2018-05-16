@@ -526,9 +526,9 @@ void StructToJs(FLAC__StreamMetadata* i, Local<Object>& obj) {
 NAN_MODULE_INIT(init_format) {
   Local<Object> obj = Nan::New<Object>();
 
-  Nan::Set(obj, Nan::New("FLAC__VERSION_STRING").ToLocalChecked(),
+  Nan::Set(target, Nan::New("VERSION_STRING").ToLocalChecked(),
            Nan::New<String>(FLAC__VERSION_STRING).ToLocalChecked());
-  Nan::Set(obj, Nan::New("FLAC__VENDOR_STRING").ToLocalChecked(),
+  Nan::Set(target, Nan::New("VENDOR_STRING").ToLocalChecked(),
            Nan::New<String>(FLAC__VENDOR_STRING).ToLocalChecked());
 
   SET_METHOD(picture_is_legal, __FLAC__format_picture_is_legal)
@@ -536,13 +536,13 @@ NAN_MODULE_INIT(init_format) {
   Local<ObjectTemplate> MetadataTypeTemplate = Nan::New<ObjectTemplate>();
   SetNamedPropertyHandlerFix(MetadataTypeTemplate, MetadataType, nullptr,
                              nullptr, nullptr, MetadataType);
-  Nan::Set(obj, Nan::New("MetadataType").ToLocalChecked(),
+  Nan::Set(target, Nan::New("MetadataType").ToLocalChecked(),
            Nan::NewInstance(MetadataTypeTemplate).ToLocalChecked());
 
   Local<ObjectTemplate> MetadataTypeStringTemplate = Nan::New<ObjectTemplate>();
   Nan::SetIndexedPropertyHandler(MetadataTypeStringTemplate, MetadataTypeString,
                                  nullptr, nullptr, nullptr, MetadataTypeString);
-  Nan::Set(obj, Nan::New("MetadataTypeString").ToLocalChecked(),
+  Nan::Set(target, Nan::New("MetadataTypeString").ToLocalChecked(),
            Nan::NewInstance(MetadataTypeStringTemplate).ToLocalChecked());
 
   Local<ObjectTemplate> StreamMetadata_Picture_TypeTemplate =
@@ -551,7 +551,7 @@ NAN_MODULE_INIT(init_format) {
                              StreamMetadata_Picture_Type, nullptr, nullptr,
                              nullptr, StreamMetadata_Picture_Type);
   Nan::Set(
-      obj, Nan::New("StreamMetadata_Picture_Type").ToLocalChecked(),
+      target, Nan::New("StreamMetadata_Picture_Type").ToLocalChecked(),
       Nan::NewInstance(StreamMetadata_Picture_TypeTemplate).ToLocalChecked());
 
   Local<ObjectTemplate> StreamMetadata_Picture_TypeStringTemplate =
@@ -560,7 +560,8 @@ NAN_MODULE_INIT(init_format) {
                                  StreamMetadata_Picture_TypeString, nullptr,
                                  nullptr, nullptr,
                                  StreamMetadata_Picture_TypeString);
-  Nan::Set(obj, Nan::New("StreamMetadata_Picture_TypeString").ToLocalChecked(),
+  Nan::Set(target,
+           Nan::New("StreamMetadata_Picture_TypeString").ToLocalChecked(),
            Nan::NewInstance(StreamMetadata_Picture_TypeStringTemplate)
                .ToLocalChecked());
 

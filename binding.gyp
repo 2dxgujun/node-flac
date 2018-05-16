@@ -5,6 +5,7 @@
       "sources": [
         "src/binding.cc",
         "src/format.cc",
+        "src/metadata.cc",
         "src/metadata_level_1.cc",
         "src/metadata_object.cc"
       ],
