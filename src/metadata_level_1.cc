@@ -454,7 +454,7 @@ NAN_INDEX_ENUMERATOR(SimpleIteratorStatusString) {
   info.GetReturnValue().Set(arr);
 }
 
-NAN_MODULE_INIT(init_metadata) {
+NAN_MODULE_INIT(init_metadata_level_1) {
   Local<Object> obj = Nan::New<Object>();
 
   SET_METHOD(new, __FLAC__metadata_simple_iterator_new)
