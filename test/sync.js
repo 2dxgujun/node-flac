@@ -1,5 +1,4 @@
 var flac = require('../lib')
-
 function main() {
   for (let i = 0; i < 1; i++) {
     let it = flac.metadata.new_sync()

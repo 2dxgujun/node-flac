@@ -494,5 +494,5 @@ NAN_MODULE_INIT(init_metadata) {
       obj, Nan::New("SimpleIteratorStatusString").ToLocalChecked(),
       Nan::NewInstance(SimpleIteratorStatusStringTemplate).ToLocalChecked());
 
-  Nan::Set(target, Nan::New("metadata").ToLocalChecked(), obj);
+  Nan::Set(target, Nan::New("metadata_simple_iterator").ToLocalChecked(), obj);
 }

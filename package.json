@@ -1,8 +1,8 @@
 {
   "name": "node-flac",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "libFLAC bindings to node.js",
-  "main": "lib/index.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "install": "node-gyp rebuild"
@@ -12,8 +12,5 @@
   "dependencies": {
     "bindings": "^1.3.0",
     "nan": "^2.10.0"
-  },
-  "devDependencies": {
-    "bluebird": "^3.5.1"
   }
 }

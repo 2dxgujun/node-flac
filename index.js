@@ -1,29 +1,29 @@
-var bindings = require('bindings')('flac-bindings')
-var fs = require('fs')
+const bindings = require('bindings')('flac-bindings')
 
-function take(num) {
-  if (num == 0) return
-  fs.readFileSync('/Users/2dxgujun/Desktop/320.mp3')
-  console.log(process.memoryUsage().rss / 1024 / 1024)
-  setTimeout(() => {
-    take(--num)
-  }, 1000)
+function promisify(module) {
+  for (let name in module) {
+    if (
+      typeof module[name] === 'function' &&
+      name.substr(name.length - 4) !== 'sync'
+    ) {
+      const func = module[name]
+      module[name] = function() {
+        return new Promise((resolve, reject) => {
+          const args = func(...Array.from(arguments), (err, data) => {
+            if (err) {
+              reject(err)
+            } else {
+              resolve(data)
+            }
+          })
+        })
+      }
+    }
+  }
 }
 
-take(15)
+promisify(bindings.format)
+promisify(bindings.metadata_simple_iterator)
+promisify(bindings.metadata_object)
 
-function dump() {
-  console.log(`dump: ${JSON.stringify(process.memoryUsage())}`)
-  setTimeout(dump, 1000)
-}
-
-dump()
-
-function _gc() {
-  gc()
-  setTimeout(_gc, 5000)
-}
-
-_gc()
-
-setTimeout(() => {}, 100000)
+module.exports = bindings
